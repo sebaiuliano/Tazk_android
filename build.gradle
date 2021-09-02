@@ -1,0 +1,53 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    ext.versions = [
+            'compileSdk'        : 30,
+            'minSdk'            : 23,
+            'targetSdk'         : 30,
+            'kotlin'            : '1.4.30',
+            'kotlin_lib'        : '1.4.30',
+            'koin'              : '2.2.2',
+            'playcore'          : '1.9.1',
+            'material'          : '1.3.0',
+            'constraintlayout'  : '2.0.4',
+            'recyclerview'      : '1.2.1',
+            'appcompat'         : '1.3.0',
+            'work'              : '2.5.0',
+            'room'              : '2.2.6',
+            'lifecycle'         : '2.3.1',
+            'retrofit'          : '2.9.0',
+            'converter_moshi_version': '2.9.0',
+            'moshi'             : '1.9.3',
+            'gson'              : '2.8.6',
+            'stetho'            : '1.5.1',
+            'timber'            : '4.7.1',
+            'junit'             : '1.1.2',
+            'espresso'          : '3.3.0',
+            'mockito'           : '2.23.4',
+            'okHttp3'           : '4.9.0',
+            'firebase_analytics': '18.0.2',
+            'firebase_crashlytics': '17.3.1',
+            'firebase_perf'     : '19.1.1',
+            'glide'             : '4.10.0',
+            'multidex'          : '2.0.1',
+            'cardview'          : '1.0.0',
+            'circleimage'       : '1.3.0',
+            'fragment'          : '1.3.6',
+            'play_services_auth': '19.2.0',
+    ]
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath "com.android.tools.build:gradle:7.0.0"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30"
+
+        // NOTE: Do not place your application dependencies here; they belong
+        // in the individual module build.gradle files
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
