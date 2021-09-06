@@ -1,9 +1,10 @@
 package com.tazk.tazk.entities.task
 
+import com.squareup.moshi.JsonClass
 import java.util.*
 
-class Task (
-    var id: Long,
+@JsonClass(generateAdapter = true)
+data class Task (
     var title: String,
     var createdAt: GregorianCalendar,
     var modifiedAt: GregorianCalendar,
