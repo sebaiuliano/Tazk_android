@@ -61,4 +61,15 @@ dependencies {
 
     //Play Services Auth
     implementation "com.google.android.gms:play-services-auth:${versions.play_services_auth}"
+
+    //Retrofit
+    implementation "com.squareup.retrofit2:retrofit:${versions.retrofit}"
+    implementation "com.squareup.retrofit2:converter-moshi:${versions.converter_moshi_version}"
+
+    //Moshi
+    implementation "com.squareup.moshi:moshi:${versions.moshi}"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:${versions.moshi}"
+
+    //Gson
+    implementation "com.google.code.gson:gson:${versions.gson}"
 }

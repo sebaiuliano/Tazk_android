@@ -1,6 +1,9 @@
 package com.tazk.tazk.entities.user
 
-class User (
-    var id: Long,
+import com.squareup.moshi.Json
+import com.squareup.moshi.JsonClass
+
+@JsonClass(generateAdapter = true)
+data class User (
     var email: String,
 )
