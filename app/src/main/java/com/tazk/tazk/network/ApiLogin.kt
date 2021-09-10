@@ -16,11 +16,12 @@ interface ApiLogin {
     companion object {
 
         var BASE_URL = "https://tazk-app.herokuapp.com/"
+        var BASE_URL_TEST = "http://10.0.2.2:3000/"
 
         fun create() : ApiLogin {
             val retrofit = Retrofit.Builder()
                 .addConverterFactory(MoshiConverterFactory.create())
-                .baseUrl(BASE_URL)
+                .baseUrl(BASE_URL_TEST)
                 .build()
             return retrofit.create(ApiLogin::class.java)
         }
