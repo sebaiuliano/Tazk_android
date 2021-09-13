@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Tazk</string>
+    <string name="fab_new_task">Create a new task</string>
+    <string name="delete">Delete</string>
 </resources>
