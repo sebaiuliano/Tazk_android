@@ -1,6 +1,9 @@
 package com.tazk.tazk.application
 
 import com.google.android.play.core.splitcompat.SplitCompatApplication
+import com.tazk.tazk.application.modules.apiModule
+import com.tazk.tazk.application.modules.apiRepositoryModule
+import com.tazk.tazk.application.modules.networkModule
 import com.tazk.tazk.application.modules.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -24,7 +27,9 @@ class Tazk: SplitCompatApplication() {
             //Declaro los modulos
             modules(listOf(
                 //Modulo de los ViewModels
-                viewModelModule
+                viewModelModule,
+                //Modulo de API
+                networkModule, apiRepositoryModule, apiModule
             ))
         }
     }

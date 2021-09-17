@@ -13,7 +13,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.ActivityLoginBinding
-import com.tazk.tazk.network.ApiLogin
+import com.tazk.tazk.network.endpoint.ApiTazk
+import com.tazk.tazk.ui.main.MainActivity
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
 
@@ -28,8 +29,9 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login)
+        binding.loginViewModel = model
+        binding.lifecycleOwner = this
 
-        model.apiLogin = ApiLogin.create()
         setObservers()
 
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -106,9 +108,16 @@ class LoginActivity : AppCompatActivity() {
 
     private fun apiSignInSuccess() {
         Toast.makeText(this, "Logueado correctamente", Toast.LENGTH_SHORT).show()
+        goMainActivity()
     }
 
     private fun alreadyLogged() {
         Toast.makeText(this, "Usuario ya logueado", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun goMainActivity(){
+        val intent = Intent(this, MainActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }

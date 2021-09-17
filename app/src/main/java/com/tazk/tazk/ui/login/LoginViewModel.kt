@@ -4,14 +4,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.tazk.tazk.entities.user.User
-import com.tazk.tazk.network.ApiLogin
+import com.tazk.tazk.network.endpoint.ApiTazk
+import com.tazk.tazk.repository.ApiTazkRepository
 import kotlinx.coroutines.*
+import timber.log.Timber
 
-class LoginViewModel : ViewModel() {
+class LoginViewModel(
+    private val apiTazkRepository: ApiTazkRepository
+) : ViewModel() {
 
     private val viewModelJob = Job()
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
-    lateinit var apiLogin: ApiLogin
     var signupResponseMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
     var signInResponseMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -19,13 +22,9 @@ class LoginViewModel : ViewModel() {
         uiScope.launch {
             account.email?.let { email ->
                 val response = withContext(Dispatchers.IO) {
-                    apiLogin.createUser(
-                        User(
-                            email
-                        )
-                    ).execute()
+                    apiTazkRepository.createUser(User(email))
                 }
-                println("RESULTADO DE REQUEST: ${response.isSuccessful} - ${response.body()}")
+                Timber.d("LOGIN REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
                 if (response.isSuccessful) {
                     signupResponseMutableHandler.postValue(true)
                 } else {
