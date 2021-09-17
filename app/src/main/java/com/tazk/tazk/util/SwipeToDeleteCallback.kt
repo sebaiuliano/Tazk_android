@@ -8,15 +8,17 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.tazk.tazk.R
+import com.tazk.tazk.ui.main.MainViewModel
 import com.tazk.tazk.ui.main.adapters.TasksAdapter
+import timber.log.Timber
 
-class SwipeToDeleteCallback(context: Context, private val adapter: TasksAdapter) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+class SwipeToDeleteCallback(context: Context, private val adapter: TasksAdapter, private val model: MainViewModel) : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
     private val deleteIcon = ContextCompat.getDrawable(context, R.drawable.ic_delete)
     private val intrinsicWidth = deleteIcon?.intrinsicWidth ?: 0
     private val intrinsicHeight = deleteIcon?.intrinsicHeight ?: 0
     private val background = ColorDrawable()
-    private val backgroundColor = Color.parseColor("#f44336")
+    private val backgroundColor = ContextCompat.getColor(context, R.color.red)
 
     override fun getMovementFlags(
         recyclerView: RecyclerView,
@@ -37,11 +39,15 @@ class SwipeToDeleteCallback(context: Context, private val adapter: TasksAdapter)
     }
 
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-//        model.deleteTask()
-//        Toast.makeText(this, "Tarea eliminada", Toast.LENGTH_SHORT).show()
-//        tasksAdapter.deleteTask(viewHolder.adapterPosition)
         println("ADAPTER POSITION: ${viewHolder.adapterPosition}")
-        adapter.deleteTask(viewHolder.adapterPosition)
+        val task = adapter.getItemFromList(viewHolder.adapterPosition)
+        if (task != null) {
+            model.deleteTask(task)
+            adapter.deleteTask(viewHolder.adapterPosition)
+        } else {
+            Timber.d("No se encontro la tarea a eliminar")
+        }
+//        adapter.deleteTask(viewHolder.adapterPosition)
     }
 
     override fun onChildDraw(
