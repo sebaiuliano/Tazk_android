@@ -5,20 +5,28 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.GoogleApiClient
+import com.google.android.gms.common.api.internal.OnConnectionFailedListener
 import com.google.android.gms.tasks.Task
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.ActivityLoginBinding
-import com.tazk.tazk.network.endpoint.ApiTazk
+import com.tazk.tazk.network.repository.ApiTazkRepositoryImpl
 import com.tazk.tazk.ui.main.MainActivity
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
+import java.lang.RuntimeException
+import androidx.annotation.NonNull
+import com.google.android.gms.tasks.OnCompleteListener
 
-class LoginActivity : AppCompatActivity() {
+
+class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
 
     private val model: LoginViewModel by viewModel()
     private lateinit var binding : ActivityLoginBinding
@@ -33,21 +41,17 @@ class LoginActivity : AppCompatActivity() {
         binding.lifecycleOwner = this
 
         setObservers()
-
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken("966205408454-jjtc7ij257qpej8u5gr0igbuncfcfg88.apps.googleusercontent.com")
             .requestEmail()
             .build()
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso)
 
-        account = GoogleSignIn.getLastSignedInAccount(this)
-        account?.let {
-            model.registeredUser(it)
-        }
+        mGoogleSignInClient.silentSignIn().addOnCompleteListener(this) { task -> handleSignInResult(task) }
+
         binding.signInButton.setOnClickListener {
             if (account == null) {
                 goSignIn()
-            } else {
-                alreadyLogged()
             }
         }
     }
@@ -69,27 +73,33 @@ class LoginActivity : AppCompatActivity() {
         try {
             account = completedTask.result
             account?.let {
+                println("IDTOKEN: ${it.idToken}")
                 model.successfulGoogleLogin(it)
+            } ?: run {
+                goSignIn()
             }
         } catch (e: ApiException) {
             Timber.e("signInResult:failed code= ${e.statusCode}")
+            println("signInResult:failed code= ${e.statusCode}")
+            failedLogin()
+        } catch (e: RuntimeException) {
+            Timber.e("signInResult:failed code= ${e.message}")
+            println("signInResult:failed code= ${e.message}")
             failedLogin()
         }
     }
 
     private fun setObservers() {
-        model.signupResponseMutableHandler.observe(this) {
+        model.signInSuccessMutableHandler.observe(this) {
             if (it) {
-                apiSignupSuccess()
-            } else {
-                apiSignupFailure()
+                model.signInSuccessMutableHandler.postValue(false)
+                apiSignInSuccess()
             }
         }
-
-        model.signInResponseMutableHandler.observe(this) {
+        model.signInErrorMutableHandler.observe(this) {
             if (it) {
-                model.signInResponseMutableHandler.postValue(false)
-                apiSignInSuccess()
+                model.signInErrorMutableHandler.postValue(false)
+                apiSignInError()
             }
         }
     }
@@ -98,26 +108,21 @@ class LoginActivity : AppCompatActivity() {
         Toast.makeText(this, "Fallo el login", Toast.LENGTH_SHORT).show()
     }
 
-    private fun apiSignupSuccess() {
-        Toast.makeText(this, "Registrado correctamente", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun apiSignupFailure() {
-        Toast.makeText(this, "Error al registrar usuario en el sistema", Toast.LENGTH_SHORT).show()
-    }
-
     private fun apiSignInSuccess() {
-        Toast.makeText(this, "Logueado correctamente", Toast.LENGTH_SHORT).show()
         goMainActivity()
     }
 
-    private fun alreadyLogged() {
-        Toast.makeText(this, "Usuario ya logueado", Toast.LENGTH_SHORT).show()
+    private fun apiSignInError() {
+        Toast.makeText(this, "Ocurrió un error al iniciar sesión en la aplicación", Toast.LENGTH_SHORT).show()
     }
 
     private fun goMainActivity(){
         val intent = Intent(this, MainActivity::class.java)
         startActivity(intent)
         finish()
+    }
+
+    override fun onConnectionFailed(p0: ConnectionResult) {
+        println("CONNECTION FAILED")
     }
 }
