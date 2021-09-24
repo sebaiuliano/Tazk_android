@@ -8,9 +8,9 @@ import com.tazk.tazk.entities.user.User
 import retrofit2.Response
 
 interface ApiTazkRepository {
-    suspend fun createUser(user: User) : Response<BasicResponse>
-    suspend fun createTask(taskRequest: TaskRequest) : Response<BasicResponse>
-    suspend fun updateTask(taskRequest: TaskRequest) : Response<BasicResponse>
+    suspend fun signIn(token: String) : Response<BasicResponse>
+    suspend fun createTask(task: Task) : Response<BasicResponse>
+    suspend fun updateTask(task: Task) : Response<BasicResponse>
     suspend fun deleteTask(id: String) : Response<BasicResponse>
-    suspend fun getTasksByDate(email: String, startDate: String, endDate: String) : Response<TasksResponse>
+    suspend fun getTasksByDate(startDate: String, endDate: String) : Response<TasksResponse>
 }

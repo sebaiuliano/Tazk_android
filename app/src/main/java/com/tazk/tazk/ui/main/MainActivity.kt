@@ -1,11 +1,13 @@
 package com.tazk.tazk.ui.main
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ItemTouchHelper
-import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.ActivityMainBinding
 import com.tazk.tazk.entities.task.Task
@@ -14,7 +16,8 @@ import com.tazk.tazk.ui.main.dialogs.TaskDialogFragment
 import com.tazk.tazk.util.SwipeToDeleteCallback
 import com.tazk.tazk.util.listeners.CustomClickListener
 import org.koin.android.viewmodel.ext.android.viewModel
-import timber.log.Timber
+import java.text.SimpleDateFormat
+import java.util.*
 
 class MainActivity : AppCompatActivity(), CustomClickListener {
 
@@ -30,7 +33,21 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
 
         setObservers()
         initializeTasksRecyclerView()
-        getTasks()
+        model.selectedDate.time = System.currentTimeMillis()
+        setDate()
+        model.getTasks()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_default, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.history -> { openDatePicker() }
+        }
+        return true
     }
 
     private fun setObservers() {
@@ -52,7 +69,7 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
             if (it) {
                 model.getTasksErrorMutableHandler.value = false
                 Toast.makeText(this, "", Toast.LENGTH_SHORT).show()
-                getTasks()
+                model.getTasks()
             }
         }
 
@@ -62,14 +79,22 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
             } else {
                 deleteTaskFailure()
             }
-            getTasks()
+            model.getTasks()
         }
 
         model.saveTaskMutableHandler.observe(this) {
             if (it) {
                 model.saveTaskMutableHandler.value = false
-                getTasks()
+                model.getTasks()
                 model.selectedTask = null
+            }
+        }
+
+        model.dateSetMutableHandler.observe(this){
+            if (it) {
+                model.dateSetMutableHandler.value = false
+                setDate()
+                model.getTasks()
             }
         }
     }
@@ -79,17 +104,6 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
         val itemTouchHelper = ItemTouchHelper(SwipeToDeleteCallback(this, tasksAdapter, model))
         itemTouchHelper.attachToRecyclerView(binding.rvTasks)
         binding.rvTasks.adapter = tasksAdapter
-    }
-
-    private fun getTasks() {
-        val account = GoogleSignIn.getLastSignedInAccount(this)
-        account?.let {
-            model.account = it
-            model.getTasks()
-        } ?: run {
-            Timber.d("NO SE ENCONTRO CUENTA ASOCIADA, VUELVO A LOGINACTIVITY")
-            onBackPressed()
-        }
     }
 
     private fun goTaskFragment(task: Task?) {
@@ -118,4 +132,33 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
         Toast.makeText(this, "Ocurrió un error al eliminar la tarea", Toast.LENGTH_SHORT).show()
     }
 
+    private fun openDatePicker() {
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText(resources.getString(R.string.select_date))
+            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+            .build()
+
+        datePicker.addOnPositiveButtonClickListener {
+            val date = Date()
+            date.time = it
+            model.selectedDate = date
+            model.dateSetMutableHandler.value = true
+            datePicker.dismiss()
+        }
+
+        datePicker.addOnNegativeButtonClickListener {
+            val date = Date()
+            date.time = System.currentTimeMillis()
+            model.selectedDate = date
+            model.dateSetMutableHandler.value = true
+            datePicker.dismiss()
+        }
+
+        datePicker.show(supportFragmentManager, "date_picker")
+    }
+
+    private fun setDate() {
+        val d = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(model.selectedDate)
+        binding.tvDate.text = d
+    }
 }

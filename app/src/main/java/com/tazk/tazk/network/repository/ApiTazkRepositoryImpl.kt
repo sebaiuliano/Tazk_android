@@ -1,6 +1,5 @@
 package com.tazk.tazk.network.repository
 
-import com.tazk.tazk.application.modules.Properties.BASE_URL
 import com.tazk.tazk.entities.network.request.TaskRequest
 import com.tazk.tazk.entities.network.response.BasicResponse
 import com.tazk.tazk.entities.network.response.TasksResponse
@@ -9,35 +8,36 @@ import com.tazk.tazk.entities.user.User
 import com.tazk.tazk.network.endpoint.ApiTazk
 import com.tazk.tazk.repository.ApiTazkRepository
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
 
 class ApiTazkRepositoryImpl(
     private val apiTazk: ApiTazk
 ) : ApiTazkRepository {
 
-    override suspend fun createUser(user: User): Response<BasicResponse> {
-        return apiTazk.createUser(user)
+    companion object {
+        private var idToken: String = ""
     }
 
-    override suspend fun createTask(taskRequest: TaskRequest): Response<BasicResponse> {
-        return apiTazk.createTask(taskRequest)
+    override suspend fun signIn(token: String): Response<BasicResponse> {
+        idToken = token
+        return apiTazk.signIn(idToken)
     }
 
-    override suspend fun updateTask(taskRequest: TaskRequest): Response<BasicResponse> {
-        return apiTazk.updateTask(taskRequest)
+    override suspend fun createTask(task: Task): Response<BasicResponse> {
+        return apiTazk.createTask(idToken, task)
+    }
+
+    override suspend fun updateTask(task: Task): Response<BasicResponse> {
+        return apiTazk.updateTask(idToken, task)
     }
 
     override suspend fun deleteTask(id: String): Response<BasicResponse> {
-        return apiTazk.deleteTask(id)
+        return apiTazk.deleteTask(idToken, id)
     }
 
     override suspend fun getTasksByDate(
-        email: String,
         startDate: String,
         endDate: String
     ): Response<TasksResponse> {
-        return apiTazk.getTasksByDate(email, startDate, endDate)
+        return apiTazk.getTasksByDate(idToken, startDate, endDate)
     }
-
 }

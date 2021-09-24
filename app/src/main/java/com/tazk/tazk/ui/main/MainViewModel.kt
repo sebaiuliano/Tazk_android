@@ -1,5 +1,7 @@
 package com.tazk.tazk.ui.main
 
+import android.os.Build
+import android.text.format.DateUtils
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -10,8 +12,11 @@ import kotlinx.coroutines.*
 import timber.log.Timber
 import java.text.DateFormat.getDateInstance
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MainViewModel(
     private val apiTazkRepository: ApiTazkRepository
@@ -22,7 +27,6 @@ class MainViewModel(
 
     var taskList : List<Task> = ArrayList()
     var selectedTask : Task? = null
-    lateinit var account : GoogleSignInAccount
 
     //newTask handlers
     var newTaskClickMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
@@ -38,8 +42,10 @@ class MainViewModel(
     var saveTaskClickMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
     var saveTaskMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
 
+    var selectedDate = Date()
+    var dateSetMutableHandler = MutableLiveData<Boolean>()
+
     fun onNewTaskClick() {
-        println("CLICK NEW TASK")
         newTaskClickMutableHandler.postValue(true)
     }
 
@@ -67,53 +73,66 @@ class MainViewModel(
 
     fun saveTask(task: Task) {
         uiScope.launch {
-            account.id?.let {
-                val taskRequest = task.toTaskRequest()
-                taskRequest.email = account.email ?: ""
-                val response = withContext(Dispatchers.IO) {
-                    selectedTask?.let { _ ->
-                        apiTazkRepository.updateTask(taskRequest)
-                    } ?: run {
-                        apiTazkRepository.createTask(taskRequest)
-                    }
+            val response = withContext(Dispatchers.IO) {
+                selectedTask?.let { _ ->
+                    apiTazkRepository.updateTask(task)
+                } ?: run {
+                    apiTazkRepository.createTask(task)
                 }
-                Timber.d("GETTASKS REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        saveTaskMutableHandler.postValue(true)
-                    } ?: run {
-                        Timber.d("Error al guardar tarea")
-                    }
-                } else {
-                    Timber.d(response.errorBody().toString())
+            }
+            Timber.d("GETTASKS REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    saveTaskMutableHandler.postValue(true)
+                } ?: run {
                     Timber.d("Error al guardar tarea")
                 }
+            } else {
+                Timber.d(response.errorBody().toString())
+                Timber.d("Error al guardar tarea")
             }
         }
     }
 
     fun getTasks() {
         uiScope.launch {
-            account.id?.let {
-                val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                val date = sdf.format(Date())
-                val response = withContext(Dispatchers.IO) {
-                    apiTazkRepository.getTasksByDate(account.email, date, date)
-//                    apiTazkRepository.getTasksByDate("nachgrandi@gmail.com", "2021-01-02", "2021-01-02")
-                }
-                Timber.d("GETTASKS REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        taskList = it.data
-                        getTasksMutableHandler.postValue(true)
-                    } ?: run {
-                        getTasksErrorMutableHandler.postValue(true)
-                    }
-                } else {
-                    Timber.d(response.errorBody().toString())
+            val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+            val date = sdf.format(selectedDate)
+            val response = withContext(Dispatchers.IO) {
+                apiTazkRepository.getTasksByDate(date, date)
+            }
+            Timber.d("GETTASKS REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
+            if (response.isSuccessful) {
+                response.body()?.let {
+                    taskList = it.data
+                    getTasksMutableHandler.postValue(true)
+                } ?: run {
                     getTasksErrorMutableHandler.postValue(true)
                 }
+            } else {
+                Timber.d(response.errorBody().toString())
+                getTasksErrorMutableHandler.postValue(true)
             }
+        }
+    }
+
+    fun goPreviousDate() {
+        changeDay(-1)
+        dateSetMutableHandler.value = true
+    }
+
+    fun goNextDate() {
+        changeDay(1)
+        dateSetMutableHandler.value = true
+    }
+
+    private fun changeDay(daysToAdd: Long) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val selectedInstant = selectedDate.toInstant()
+            val goToInstant = selectedInstant.plus(daysToAdd, ChronoUnit.DAYS)
+            selectedDate = Date.from(goToInstant)
+        } else {
+            selectedDate.time = selectedDate.time + (TimeUnit.DAYS.toMillis(daysToAdd))
         }
     }
 }
