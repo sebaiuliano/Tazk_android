@@ -80,4 +80,9 @@ dependencies {
     implementation "org.koin:koin-android-viewmodel:${versions.koin}"
     androidTestImplementation "org.koin:koin-test:${versions.koin}"
 
+    //Room
+    implementation "androidx.room:room-runtime:${versions.room}"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    kapt "androidx.room:room-compiler:${versions.room}"
+    implementation "androidx.room:room-ktx:${versions.room}"
 }

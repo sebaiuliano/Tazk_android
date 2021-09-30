@@ -12,9 +12,11 @@ import com.tazk.tazk.R
 import com.tazk.tazk.databinding.ActivityMainBinding
 import com.tazk.tazk.entities.task.Task
 import com.tazk.tazk.ui.main.adapters.TasksAdapter
+import com.tazk.tazk.ui.main.dialogs.FilterDialogFragment
 import com.tazk.tazk.ui.main.dialogs.TaskDialogFragment
 import com.tazk.tazk.util.SwipeToDeleteCallback
 import com.tazk.tazk.util.listeners.CustomClickListener
+import com.tazk.tazk.util.services.WifiService
 import org.koin.android.viewmodel.ext.android.viewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -35,7 +37,13 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
         initializeTasksRecyclerView()
         model.selectedDate.time = System.currentTimeMillis()
         setDate()
+        model.categoriesList = resources.getStringArray(R.array.list_categories).toList()
         model.getTasks()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        model.checkPendingTasks()
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
@@ -45,6 +53,7 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.filter -> { openFilterDialog() }
             R.id.history -> { openDatePicker() }
         }
         return true
@@ -68,8 +77,7 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
         model.getTasksErrorMutableHandler.observe(this) {
             if (it) {
                 model.getTasksErrorMutableHandler.value = false
-                Toast.makeText(this, "", Toast.LENGTH_SHORT).show()
-                model.getTasks()
+                Toast.makeText(this, "No se pudieron obtener las tareas", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -160,5 +168,10 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
     private fun setDate() {
         val d = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(model.selectedDate)
         binding.tvDate.text = d
+    }
+
+    private fun openFilterDialog() {
+        val fragment = FilterDialogFragment()
+        fragment.show(supportFragmentManager, "filter")
     }
 }

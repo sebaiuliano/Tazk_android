@@ -41,8 +41,6 @@
             tools:text="Title"
             tools:ignore="LabelFor" />
 
-
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -69,11 +67,32 @@
             android:layout_marginVertical="5dp"
             tools:ignore="LabelFor" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_category"
+            app:layout_constraintTop_toBottomOf="@id/et_description"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/category"
+            android:layout_marginVertical="5dp"
+            />
+
+        <Spinner
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/spn_category"
+            app:layout_constraintTop_toBottomOf="@id/tv_category"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginVertical="5dp"
+            android:paddingVertical="15dp"
+            />
+
         <Button
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:id="@+id/btn_save"
-            app:layout_constraintTop_toBottomOf="@id/et_description"
+            app:layout_constraintTop_toBottomOf="@id/spn_category"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:text="@string/save"

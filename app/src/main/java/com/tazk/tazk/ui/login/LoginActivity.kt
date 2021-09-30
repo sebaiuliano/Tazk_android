@@ -5,25 +5,20 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
-import com.google.android.gms.auth.api.Auth
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.ApiException
-import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.internal.OnConnectionFailedListener
 import com.google.android.gms.tasks.Task
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.ActivityLoginBinding
-import com.tazk.tazk.network.repository.ApiTazkRepositoryImpl
 import com.tazk.tazk.ui.main.MainActivity
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
 import java.lang.RuntimeException
-import androidx.annotation.NonNull
-import com.google.android.gms.tasks.OnCompleteListener
 
 
 class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
@@ -81,11 +76,17 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         } catch (e: ApiException) {
             Timber.e("signInResult:failed code= ${e.statusCode}")
             println("signInResult:failed code= ${e.statusCode}")
-            failedLogin()
+//            failedLogin()
+            goMainActivity()
         } catch (e: RuntimeException) {
             Timber.e("signInResult:failed code= ${e.message}")
             println("signInResult:failed code= ${e.message}")
-            failedLogin()
+            if ((e.cause as? ApiException)?.statusCode == 7) {
+                goMainActivity()
+            } else {
+                failedLogin()
+            }
+
         }
     }
 
@@ -100,6 +101,11 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             if (it) {
                 model.signInErrorMutableHandler.postValue(false)
                 apiSignInError()
+            }
+        }
+        model.noInternetMutableHandler.observe(this) {
+            if (it) {
+                goMainActivity()
             }
         }
     }

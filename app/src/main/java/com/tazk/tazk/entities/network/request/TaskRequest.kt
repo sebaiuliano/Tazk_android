@@ -14,5 +14,6 @@ data class TaskRequest (
     var description: String,
     @Json(name="dateCreated")
     @FechaString
-    var createdAt: GregorianCalendar
+    var createdAt: GregorianCalendar,
+    var category: String?
 )

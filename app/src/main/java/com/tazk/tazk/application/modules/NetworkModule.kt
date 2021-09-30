@@ -2,6 +2,7 @@ package com.tazk.tazk.application.modules
 
 import com.squareup.moshi.Moshi
 import com.tazk.tazk.application.modules.Properties.BASE_URL
+import com.tazk.tazk.util.interceptors.ConnectivityInterceptor
 import com.tazk.tazk.util.moshiconverters.DateStringConverter
 import okhttp3.OkHttpClient
 import org.koin.core.qualifier.named
@@ -17,7 +18,9 @@ object Properties {
 val networkModule = module {
 
     fun provideHttpClient(): OkHttpClient {
-        return OkHttpClient.Builder().build()
+        return OkHttpClient.Builder()
+            .addInterceptor(ConnectivityInterceptor())
+            .build()
     }
 
     fun provideRetrofit(client: OkHttpClient, moshi: Moshi, baseUrl: String): Retrofit {

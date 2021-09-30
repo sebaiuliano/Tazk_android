@@ -1,5 +1,9 @@
 package com.tazk.tazk.entities.task
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.tazk.tazk.entities.network.request.TaskRequest
@@ -7,32 +11,60 @@ import com.tazk.tazk.util.moshiconverters.FechaString
 import java.util.*
 
 @JsonClass(generateAdapter = true)
+@Entity(tableName = "tasks")
 data class Task (
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name="id_local")
+    @Transient
+    var idLocal: Long = 0L,
     @Json(name="_id")
     var id: String?,
     var title: String,
     var description: String,
     @Json(name="dateCreated")
+    @ColumnInfo(name = "created_at")
     @FechaString
     var createdAt: GregorianCalendar,
-//    @FechaString
-//    var modifiedAt: GregorianCalendar,
-//    var deleted: Boolean,
+    var category: String
 ) {
-    //    constructor(title: String, description: String) : this("", title, description, GregorianCalendar(), GregorianCalendar(), false)
-//    constructor(id: String, title: String, description: String) : this(id, title, description, GregorianCalendar(), GregorianCalendar(), false)
+    @Ignore
     constructor(title: String, description: String) : this(
+        0L,
         "",
         title,
         description,
-        GregorianCalendar()
+        GregorianCalendar(),
+        ""
     )
 
-    constructor(id: String, title: String, description: String) : this(
+    @Ignore
+    constructor(title: String, description: String, category: String) : this(
+        0L,
+        "",
+        title,
+        description,
+        GregorianCalendar(),
+        category
+    )
+
+    @Ignore
+    constructor(id: String?, title: String, description: String, category: String) : this(
+        0L,
         id,
         title,
         description,
-        GregorianCalendar()
+        GregorianCalendar(),
+        category
+    )
+
+    @Ignore
+    constructor(id: String?, title: String, description: String, createdAt: GregorianCalendar, category: String) : this(
+        0L,
+        id,
+        title,
+        description,
+        createdAt,
+        category
     )
 }
 
@@ -42,6 +74,7 @@ fun Task.toTaskRequest() : TaskRequest {
         "",
         title,
         description,
-        createdAt
+        createdAt,
+        if (category.isNotEmpty()) { category } else { null }
     )
 }
