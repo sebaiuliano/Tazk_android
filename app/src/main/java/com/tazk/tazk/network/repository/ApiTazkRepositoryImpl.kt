@@ -36,8 +36,9 @@ class ApiTazkRepositoryImpl(
 
     override suspend fun getTasksByDate(
         startDate: String,
-        endDate: String
+        endDate: String,
+        category: String?
     ): Response<TasksResponse> {
-        return apiTazk.getTasksByDate(idToken, startDate, endDate)
+        return apiTazk.getTasksByDate(idToken, startDate, endDate, category)
     }
 }

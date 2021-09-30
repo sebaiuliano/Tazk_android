@@ -4,9 +4,18 @@
     <string name="delete">Delete</string>
     <string name="title">Title</string>
     <string name="description">Description</string>
+    <string name="category">Category</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+    <string name="apply">Apply</string>
     <string name="date">Date</string>
     <string name="history">History</string>
+    <string name="filter">Filter</string>
+    <string name="all">All</string>
     <string name="select_date">Select date</string>
+    <string-array name="list_categories">
+        <item>Tarea</item>
+        <item>Error</item>
+        <item>Otro</item>
+    </string-array>
 </resources>

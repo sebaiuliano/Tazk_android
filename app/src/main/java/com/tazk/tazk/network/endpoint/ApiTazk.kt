@@ -19,10 +19,12 @@ interface ApiTazk {
     suspend fun updateTask(@Header("idToken") idToken: String, @Body task: Task) : Response<BasicResponse>
     @DELETE("/tazk")
     suspend fun deleteTask(@Header("idToken") idToken: String, @Query("id") id: String) : Response<BasicResponse>
+
     @GET("/tazk/getByDate")
     suspend fun getTasksByDate(
         @Header("idToken") idToken: String,
         @Query("startDate") startDate: String,
-        @Query("endDate") endDate: String
+        @Query("endDate") endDate: String,
+        @Query("category") category: String?
     ) : Response<TasksResponse>
 }

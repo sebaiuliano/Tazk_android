@@ -3,8 +3,8 @@ package com.tazk.tazk.ui.login
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
-import com.tazk.tazk.entities.user.User
 import com.tazk.tazk.repository.ApiTazkRepository
+import com.tazk.tazk.util.services.WifiService
 import kotlinx.coroutines.*
 import timber.log.Timber
 
@@ -16,6 +16,7 @@ class LoginViewModel(
     private val uiScope = CoroutineScope(Dispatchers.Main + viewModelJob)
     var signInSuccessMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
     var signInErrorMutableHandler = MutableLiveData<Boolean>()
+    var noInternetMutableHandler = MutableLiveData<Boolean>()
 
     fun successfulGoogleLogin(account: GoogleSignInAccount) {
         uiScope.launch {
@@ -24,10 +25,10 @@ class LoginViewModel(
                     apiTazkRepository.signIn(token)
                 }
                 Timber.d("LOGIN REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
-                if (response.isSuccessful) {
-                    signInSuccessMutableHandler.postValue(true)
-                } else {
-                    signInSuccessMutableHandler.postValue(false)
+                when {
+                    response.isSuccessful -> { signInSuccessMutableHandler.postValue(true) }
+                    response.code() == 600 -> { noInternetMutableHandler.postValue(true) }
+                    else -> { signInErrorMutableHandler.postValue(true) }
                 }
             }
         }

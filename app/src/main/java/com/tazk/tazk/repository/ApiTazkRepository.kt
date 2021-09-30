@@ -12,5 +12,5 @@ interface ApiTazkRepository {
     suspend fun createTask(task: Task) : Response<BasicResponse>
     suspend fun updateTask(task: Task) : Response<BasicResponse>
     suspend fun deleteTask(id: String) : Response<BasicResponse>
-    suspend fun getTasksByDate(startDate: String, endDate: String) : Response<TasksResponse>
+    suspend fun getTasksByDate(startDate: String, endDate: String, category: String?) : Response<TasksResponse>
 }

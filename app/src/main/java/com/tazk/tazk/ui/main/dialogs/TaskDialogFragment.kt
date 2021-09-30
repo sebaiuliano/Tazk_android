@@ -10,6 +10,8 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
@@ -41,6 +43,8 @@ class TaskDialogFragment: DialogFragment() {
         this.mBinding = binding
         this.mView = view
         setViewMetric()
+
+        initializeSpnCategory()
         setObservables()
 
         return view
@@ -72,6 +76,34 @@ class TaskDialogFragment: DialogFragment() {
         dialog?.window!!.attributes = layoutParams
     }
 
+    private fun initializeSpnCategory(){
+        val spnAdapter = ArrayAdapter(requireContext(),
+            android.R.layout.simple_spinner_item,
+            model.categoriesList)
+        mBinding.spnCategory.adapter = spnAdapter
+        mBinding.spnCategory.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                model.selectedTask?.let {
+                    it.category = model.categoriesList[position]
+                } ?: run {
+                    model.selectedCategory = model.categoriesList[position]
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+
+        }
+        model.selectedTask?.category?.let { category ->
+            mBinding.spnCategory.setSelection(model.categoriesList.indexOf(model.categoriesList.find { it == category }))
+        }
+    }
+
     private fun initializeTaskData(){
         model.selectedTask?.let {
             mBinding.etTitle.setText(it.title)
@@ -93,7 +125,8 @@ class TaskDialogFragment: DialogFragment() {
                     model.selectedTask?.id,
                     mBinding.etTitle.text.toString(),
                     mBinding.etDescription.text.toString(),
-                    model.selectedTask?.createdAt ?: gc
+                    model.selectedTask?.createdAt ?: gc,
+                    model.selectedTask?.category ?: model.selectedCategory
                 )
                 if (task.title != "") {
                     model.saveTask(task)

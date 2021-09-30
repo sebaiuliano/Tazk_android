@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="mainViewModel"
+            type="com.tazk.tazk.ui.main.MainViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/cl_dialog_filter"
+        android:background="@drawable/background_bottom_sheet_dialog">
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/grp_btn_category_filter"
+            app:layout_constraintTop_toTopOf="parent"
+            app:singleSelection="true"
+            app:selectionRequired="false"/>
+
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            app:layout_constraintTop_toBottomOf="@id/grp_btn_category_filter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:id="@+id/btn_apply"
+            android:background="@color/white"
+            android:src="@drawable/ic_check_circle"
+            android:scaleType="fitXY"
+            android:layout_margin="10dp"
+            android:onClick="@{() -> mainViewModel.onFilterApply()}"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
