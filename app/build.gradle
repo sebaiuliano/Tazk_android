@@ -2,13 +2,12 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
-//    id 'com.google.gms.google-services'
 }
 
 android {
     signingConfigs {
         debug {
-            storeFile file('D:\\GIT\\Android\\Tazk\\keystore\\debug.keystore')
+            storeFile file('../keystore/debug.keystore')
             storePassword 'android'
         }
     }
