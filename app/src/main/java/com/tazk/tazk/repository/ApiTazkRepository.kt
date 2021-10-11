@@ -9,8 +9,8 @@ import retrofit2.Response
 
 interface ApiTazkRepository {
     suspend fun signIn(token: String) : Response<BasicResponse>
-    suspend fun createTask(task: Task) : Response<BasicResponse>
-    suspend fun updateTask(task: Task) : Response<BasicResponse>
-    suspend fun deleteTask(id: String) : Response<BasicResponse>
+    suspend fun createTask(task: Task) : Boolean
+    suspend fun updateTask(task: Task) : Boolean
+    suspend fun deleteTask(id: String) : Boolean
     suspend fun getTasksByDate(startDate: String, endDate: String, category: String?) : Response<TasksResponse>
 }
