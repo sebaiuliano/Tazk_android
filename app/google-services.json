@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "966205408454",
+    "project_id": "tazk-1630450146860",
+    "storage_bucket": "tazk-1630450146860.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:966205408454:android:f2a06ed7be905a255283c7",
+        "android_client_info": {
+          "package_name": "com.tazk.tazk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "966205408454-16t1sr6b3i1il2u42f9aitl5gse5fuin.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.tazk.tazk",
+            "certificate_hash": "f0c094cceadcca2d98c364c71ec7ee9263dd2b1b"
+          }
+        },
+        {
+          "client_id": "966205408454-2n9odfr0hafg1nu00gbfk0rk1gsdmhbl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX0VjTnIii1ihO150CgvbhyKOpl2rkI2U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "966205408454-2n9odfr0hafg1nu00gbfk0rk1gsdmhbl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
