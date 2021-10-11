@@ -105,6 +105,13 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
                 model.getTasks()
             }
         }
+
+        model.saveTaskErrorMutableHandler.observe(this){
+            if (it) {
+                model.saveTaskErrorMutableHandler.value = false
+                saveTaskFailure()
+            }
+        }
     }
 
     private fun initializeTasksRecyclerView() {
@@ -138,6 +145,10 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
 
     private fun deleteTaskFailure() {
         Toast.makeText(this, "Ocurrió un error al eliminar la tarea", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun saveTaskFailure() {
+        Toast.makeText(this, "Ocurrió un error al guardar la tarea", Toast.LENGTH_SHORT).show()
     }
 
     private fun openDatePicker() {

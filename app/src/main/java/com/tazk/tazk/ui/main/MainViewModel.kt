@@ -47,6 +47,7 @@ class MainViewModel(
     //new/update task handlers
     var saveTaskClickMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
     var saveTaskMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
+    var saveTaskErrorMutableHandler = MutableLiveData<Boolean>()
 
     //filter handlers
     var filterApplyMutableHandler = MutableLiveData<Boolean>()
@@ -64,11 +65,9 @@ class MainViewModel(
                 val response = withContext(Dispatchers.IO) {
                     apiTazkRepository.deleteTask(it)
                 }
-                Timber.d("DELETETASK REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
-                if (response.isSuccessful) {
+                if (response) {
                     deleteTaskMutableHandler.postValue(true)
                 } else {
-                    Timber.d(response.errorBody().toString())
                     deleteTaskMutableHandler.postValue(false)
                 }
             }
@@ -82,32 +81,17 @@ class MainViewModel(
 
     fun saveTask(task: Task) {
         uiScope.launch {
-            try {
-                val response = withContext(Dispatchers.IO) {
-                    selectedTask?.let { _ ->
-                        apiTazkRepository.updateTask(task)
-                    } ?: run {
-                        apiTazkRepository.createTask(task)
-                    }
+            val success = withContext(Dispatchers.IO) {
+                selectedTask?.let { _ ->
+                    apiTazkRepository.updateTask(task)
+                } ?: run {
+                    apiTazkRepository.createTask(task)
                 }
-                Timber.d("GETTASKS REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        saveTaskMutableHandler.postValue(true)
-                    } ?: run {
-                        Timber.d("Error al guardar tarea")
-                    }
-                } else {
-                    Timber.d(response.errorBody().toString())
-                    Timber.d("Error al guardar tarea")
-                }
-            } catch (e: IOException) {
-                val resp = withContext(Dispatchers.IO) {
-                    taskRepository.insert(task)
-                }
-                if (!resp) {
-                    Timber.d("Error al guardar la tarea en la bd local")
-                }
+            }
+            if (success) {
+                saveTaskMutableHandler.postValue(true)
+            } else {
+
             }
         }
     }
@@ -168,7 +152,7 @@ class MainViewModel(
                     val response = withContext(Dispatchers.IO) {
                         apiTazkRepository.createTask(task)
                     }
-                    if (response.isSuccessful) {
+                    if (response) {
                         withContext(Dispatchers.IO) {
                             taskRepository.delete(task)
                         }
