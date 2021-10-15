@@ -6,8 +6,9 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
-import com.tazk.tazk.entities.network.request.TaskRequest
+import com.tazk.tazk.entities.network.response.ImageResponse
 import com.tazk.tazk.util.moshiconverters.FechaString
+import java.io.File
 import java.util.*
 
 @JsonClass(generateAdapter = true)
@@ -25,7 +26,12 @@ data class Task (
     @ColumnInfo(name = "created_at")
     @FechaString
     var createdAt: GregorianCalendar,
-    var category: String
+    var category: String,
+//    @Transient
+//    @Ignore
+//    var attachments: List<File> = ArrayList(),
+    @Ignore
+    var image: List<ImageResponse>
 ) {
     @Ignore
     constructor(title: String, description: String) : this(
@@ -34,7 +40,8 @@ data class Task (
         title,
         description,
         GregorianCalendar(),
-        ""
+        "",
+        ArrayList()
     )
 
     @Ignore
@@ -44,7 +51,8 @@ data class Task (
         title,
         description,
         GregorianCalendar(),
-        category
+        category,
+        ArrayList()
     )
 
     @Ignore
@@ -54,27 +62,17 @@ data class Task (
         title,
         description,
         GregorianCalendar(),
-        category
+        category,
+        ArrayList()
     )
 
-    @Ignore
     constructor(id: String?, title: String, description: String, createdAt: GregorianCalendar, category: String) : this(
         0L,
         id,
         title,
         description,
         createdAt,
-        category
-    )
-}
-
-fun Task.toTaskRequest() : TaskRequest {
-    return TaskRequest(
-        id,
-        "",
-        title,
-        description,
-        createdAt,
-        if (category.isNotEmpty()) { category } else { null }
+        category,
+        ArrayList()
     )
 }
