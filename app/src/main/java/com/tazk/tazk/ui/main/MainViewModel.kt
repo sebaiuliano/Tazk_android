@@ -187,12 +187,26 @@ class MainViewModel(
 
     fun deleteAttachment(attachment: ImageResponse) {
         uiScope.launch {
-            val response = withContext(Dispatchers.IO) {
+            val responseAttachment = withContext(Dispatchers.IO) {
                 apiTazkRepository.deleteImage(DeleteImageRequest(attachment.publicId))
             }
-            println("UPLOAD IMAGE SUCCESS: ${response.isSuccessful} - ${response.body()}")
-            if (response.isSuccessful) {
-                onDeleteAttachmentSuccessMutableHandler.postValue(true)
+            println("UPLOAD IMAGE SUCCESS: ${responseAttachment.isSuccessful} - ${responseAttachment.body()}")
+            if (responseAttachment.isSuccessful) {
+                selectedTask?.let {
+                    val responseTask = withContext(Dispatchers.IO) {
+                        val auxList = it.image.toMutableList()
+                        auxList.remove(attachment)
+                        it.image = auxList
+                        attachments = auxList
+                        val response = apiTazkRepository.updateTask(it)
+                        response
+                    }
+                    if (responseTask) {
+                        onDeleteAttachmentSuccessMutableHandler.postValue(true)
+                    } else {
+                        onDeleteAttachmentFailureMutableHandler.postValue(true)
+                    }
+                }
             } else {
                 onDeleteAttachmentFailureMutableHandler.postValue(true)
             }
