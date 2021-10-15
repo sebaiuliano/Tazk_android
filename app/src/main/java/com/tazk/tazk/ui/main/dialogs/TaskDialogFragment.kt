@@ -1,11 +1,9 @@
 package com.tazk.tazk.ui.main.dialogs
 
-import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,22 +11,28 @@ import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.DialogTaskBinding
+import com.tazk.tazk.entities.network.response.ImageResponse
 import com.tazk.tazk.entities.task.Task
 import com.tazk.tazk.ui.main.MainViewModel
+import com.tazk.tazk.ui.main.adapters.AttachmentsAdapter
+import com.tazk.tazk.util.listeners.CustomClickListener
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import java.util.*
 
-class TaskDialogFragment: DialogFragment() {
+class TaskDialogFragment: DialogFragment(), CustomClickListener {
 
     private lateinit var mView: View
     private lateinit var mBinding: DialogTaskBinding
 
     private val model: MainViewModel by sharedViewModel()
+    private val attachmentsAdapter = AttachmentsAdapter(this)
+
+    private var selectedAttachmentPosition : Int = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,6 +49,7 @@ class TaskDialogFragment: DialogFragment() {
         setViewMetric()
 
         initializeSpnCategory()
+        initializeRvAttachments()
         setObservables()
 
         return view
@@ -104,10 +109,18 @@ class TaskDialogFragment: DialogFragment() {
         }
     }
 
+    private fun initializeRvAttachments() {
+        mBinding.rvAttachments.setHasFixedSize(true)
+        mBinding.rvAttachments.adapter = attachmentsAdapter
+    }
+
     private fun initializeTaskData(){
         model.selectedTask?.let {
             mBinding.etTitle.setText(it.title)
             mBinding.etDescription.setText(it.description)
+            model.attachments = it.image.toMutableList()
+            attachmentsAdapter.setAttachments(model.attachments)
+            checkShowAttachments()
         }
     }
 
@@ -126,8 +139,11 @@ class TaskDialogFragment: DialogFragment() {
                     mBinding.etTitle.text.toString(),
                     mBinding.etDescription.text.toString(),
                     model.selectedTask?.createdAt ?: gc,
-                    model.selectedTask?.category ?: model.selectedCategory
+                    model.selectedTask?.category ?: model.selectedCategory,
                 )
+                if (model.attachments.isNotEmpty()) {
+                    task.image = model.attachments
+                }
                 if (task.title != "") {
                     model.saveTask(task)
                     dismiss()
@@ -136,10 +152,94 @@ class TaskDialogFragment: DialogFragment() {
                 }
             }
         }
+
+        model.attachMutableHandler.observe(this) {
+            if (it) {
+                model.attachMutableHandler.value = false
+                val fragment = AttachDialogFragment()
+                fragment.show(childFragmentManager, "attach")
+            }
+        }
+
+        model.onAttachSuccessMutableHandler.observe(this) {
+            if (it) {
+                model.onAttachSuccessMutableHandler.value = false
+                onAttachSuccess()
+            }
+        }
+
+        model.onAttachFailureMutableHandler.observe(this) {
+            if (it) {
+                model.onAttachFailureMutableHandler.value = false
+                onAttachFailure()
+            }
+        }
+
+        model.onDeleteAttachmentSuccessMutableHandler.observe(this) {
+            if (it) {
+                model.onDeleteAttachmentSuccessMutableHandler.value = false
+                onDeleteAttachmentSuccess()
+            }
+        }
+
+        model.onDeleteAttachmentFailureMutableHandler.observe(this) {
+            if (it) {
+                model.onDeleteAttachmentFailureMutableHandler.value = false
+                onDeleteAttachmentFailure()
+            }
+        }
     }
 
     private fun missingTitle() {
         Toast.makeText(requireContext(), "Por favor ingrese un título para poder guardar la tarea", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun onAttachSuccess() {
+        model.attachImageResponse?.let {
+            model.attachments.add(it)
+            attachmentsAdapter.setAttachments(model.attachments)
+            closeAttachDialog()
+            checkShowAttachments()
+        }
+    }
+
+    private fun closeAttachDialog() {
+        val dialog = childFragmentManager.findFragmentByTag("attach")
+        if (dialog is BottomSheetDialogFragment) {
+            dialog.dismiss()
+        }
+    }
+
+    private fun onAttachFailure() {
+        Toast.makeText(requireContext(), "Error al adjuntar archivo, por favor reintente", Toast.LENGTH_SHORT).show()
+    }
+
+    private fun checkShowAttachments() {
+        mBinding.rvAttachments.visibility = if (model.attachments.isNotEmpty()) {
+            View.VISIBLE
+        } else {
+            View.GONE
+        }
+    }
+
+    override fun onItemClick(item: Any, position: Int) {
+        if (item is ImageResponse) {
+            selectedAttachmentPosition = position
+            model.deleteAttachment(item)
+        }
+    }
+
+    override fun onItemLongClick(item: Any, position: Int) {
+        //nada por ahora
+    }
+
+    private fun onDeleteAttachmentSuccess() {
+        attachmentsAdapter.deleteAttachment(selectedAttachmentPosition)
+        checkShowAttachments()
+    }
+
+    private fun onDeleteAttachmentFailure() {
+        Toast.makeText(requireContext(), "Error al eliminar archivo adjunto, por favor reintente", Toast.LENGTH_SHORT).show()
     }
 
 }

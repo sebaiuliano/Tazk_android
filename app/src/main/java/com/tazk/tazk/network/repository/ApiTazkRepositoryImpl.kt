@@ -1,16 +1,21 @@
 package com.tazk.tazk.network.repository
 
-import com.tazk.tazk.entities.network.request.TaskRequest
+import com.tazk.tazk.entities.network.request.DeleteImageRequest
+import com.tazk.tazk.entities.network.request.ImageRequest
 import com.tazk.tazk.entities.network.response.BasicResponse
+import com.tazk.tazk.entities.network.response.ImageResponse
+import com.tazk.tazk.entities.network.response.ImageResponseWrapper
 import com.tazk.tazk.entities.network.response.TasksResponse
 import com.tazk.tazk.entities.task.Task
-import com.tazk.tazk.entities.user.User
 import com.tazk.tazk.network.endpoint.ApiTazk
 import com.tazk.tazk.repository.ApiTazkRepository
 import com.tazk.tazk.repository.TaskRepository
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Response
+import java.io.File
 import java.io.IOException
-import java.lang.RuntimeException
 
 class ApiTazkRepositoryImpl(
     private val apiTazk: ApiTazk,
@@ -48,5 +53,14 @@ class ApiTazkRepositoryImpl(
         category: String?
     ): Response<TasksResponse> {
         return apiTazk.getTasksByDate(idToken, startDate, endDate, category)
+    }
+
+    override suspend fun uploadImage(file: File): Response<ImageResponseWrapper> {
+        val requestBody = MultipartBody.Part.createFormData("image", file.name, RequestBody.create(MediaType.parse("image/*"), file))
+        return apiTazk.uploadImage(idToken, requestBody)
+    }
+
+    override suspend fun deleteImage(deleteImageRequest: DeleteImageRequest): Response<BasicResponse> {
+        return apiTazk.deleteImage(idToken, deleteImageRequest)
     }
 }

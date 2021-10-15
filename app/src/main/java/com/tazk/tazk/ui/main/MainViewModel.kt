@@ -1,24 +1,19 @@
 package com.tazk.tazk.ui.main
 
-import android.os.Build
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.common.api.ApiException
-import com.tazk.tazk.R
-import com.tazk.tazk.entities.network.response.TasksResponse
+import com.tazk.tazk.entities.network.request.DeleteImageRequest
+import com.tazk.tazk.entities.network.response.ImageResponse
 import com.tazk.tazk.entities.task.Task
 import com.tazk.tazk.repository.ApiTazkRepository
 import com.tazk.tazk.repository.TaskRepository
 import com.tazk.tazk.util.services.WifiService
 import kotlinx.coroutines.*
-import retrofit2.Response
 import timber.log.Timber
+import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
-import java.time.temporal.ChronoUnit
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.coroutines.coroutineContext
 
 class MainViewModel(
     private val apiTazkRepository: ApiTazkRepository,
@@ -33,6 +28,9 @@ class MainViewModel(
     var selectedCategory = ""
     var selectedCategoryFilter : String? = null
     var categoriesList : List<String> = ArrayList()
+    var file : File? = null
+    var attachImageResponse : ImageResponse? = null
+    var attachments: MutableList<ImageResponse> = ArrayList()
 
     //newTask handlers
     var newTaskClickMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
@@ -51,6 +49,15 @@ class MainViewModel(
 
     //filter handlers
     var filterApplyMutableHandler = MutableLiveData<Boolean>()
+
+    //attach handlers
+    var attachMutableHandler = MutableLiveData<Boolean>()
+    var attachImageMutableHandler = MutableLiveData<Boolean>()
+    var attachPhotoMutableHandler = MutableLiveData<Boolean>()
+    var onAttachSuccessMutableHandler = MutableLiveData<Boolean>()
+    var onAttachFailureMutableHandler = MutableLiveData<Boolean>()
+    var onDeleteAttachmentSuccessMutableHandler = MutableLiveData<Boolean>()
+    var onDeleteAttachmentFailureMutableHandler = MutableLiveData<Boolean>()
 
     var selectedStartDate = Date()
     var selectedEndDate = Date()
@@ -92,7 +99,7 @@ class MainViewModel(
             if (success) {
                 saveTaskMutableHandler.postValue(true)
             } else {
-
+                saveTaskErrorMutableHandler.postValue(true)
             }
         }
     }
@@ -146,5 +153,50 @@ class MainViewModel(
 
     fun onFilterApply() {
         filterApplyMutableHandler.postValue(true)
+    }
+
+    fun onAttach() {
+        attachMutableHandler.postValue(true)
+    }
+
+    fun goGetImage() {
+        attachImageMutableHandler.postValue(true)
+    }
+
+    fun goTakePhoto() {
+        attachPhotoMutableHandler.postValue(true)
+    }
+
+    fun attachImage() {
+        file?.let {
+            uiScope.launch {
+                val response = withContext(Dispatchers.IO) {
+                    apiTazkRepository.uploadImage(it)
+                }
+                println("UPLOAD IMAGE SUCCESS: ${response.isSuccessful} - ${response.body()}")
+                if (response.isSuccessful) {
+                    attachImageResponse = response.body()?.data
+                    onAttachSuccessMutableHandler.postValue(true)
+                } else {
+                    attachImageResponse = null
+                    onAttachFailureMutableHandler.postValue(true)
+                }
+            }
+        }
+    }
+
+    fun deleteAttachment(attachment: ImageResponse) {
+        uiScope.launch {
+            val response = withContext(Dispatchers.IO) {
+                apiTazkRepository.deleteImage(DeleteImageRequest(attachment.publicId))
+            }
+            println("UPLOAD IMAGE SUCCESS: ${response.isSuccessful} - ${response.body()}")
+            if (response.isSuccessful) {
+                onDeleteAttachmentSuccessMutableHandler.postValue(true)
+            } else {
+                onDeleteAttachmentFailureMutableHandler.postValue(true)
+            }
+        }
+
     }
 }

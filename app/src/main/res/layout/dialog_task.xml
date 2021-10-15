@@ -17,6 +17,18 @@
         android:id="@+id/cl_dialog_task"
         >
 
+        <ImageButton
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/ib_attach"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:src="@drawable/ic_attach"
+            android:background="@color/main_background"
+            android:elevation="5dp"
+            android:onClick="@{() -> mainViewModel.onAttach()}"
+            />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -36,7 +48,7 @@
             android:inputType="text"
             android:minHeight="48dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/ib_attach"
             app:layout_constraintTop_toBottomOf="@id/tv_title"
             tools:text="Title"
             tools:ignore="LabelFor" />
@@ -88,11 +100,20 @@
             android:paddingVertical="15dp"
             />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rv_attachments"
+            app:layout_constraintTop_toBottomOf="@id/spn_category"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:orientation="horizontal"
+            tools:listitem="@layout/item_attachment" />
+
         <Button
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:id="@+id/btn_save"
-            app:layout_constraintTop_toBottomOf="@id/spn_category"
+            app:layout_constraintTop_toBottomOf="@id/rv_attachments"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:text="@string/save"

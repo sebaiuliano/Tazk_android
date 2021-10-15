@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="mainViewModel"
+            type="com.tazk.tazk.ui.main.MainViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:gravity="center"
+            >
+
+            <ImageButton
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:layout_constraintTop_toBottomOf="@id/grp_btn_category_filter"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:id="@+id/btn_image"
+                android:background="@color/white"
+                android:src="@drawable/ic_image"
+                android:scaleType="fitXY"
+                android:layout_margin="10dp"
+                android:onClick="@{() -> mainViewModel.goGetImage()}"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/select_image"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:gravity="center"
+            >
+
+            <ImageButton
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                app:layout_constraintTop_toBottomOf="@id/grp_btn_category_filter"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:id="@+id/btn_camera"
+                android:background="@color/white"
+                android:src="@drawable/ic_camera"
+                android:scaleType="fitXY"
+                android:layout_margin="10dp"
+                android:onClick="@{() -> mainViewModel.goTakePhoto()}"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/take_photo"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>

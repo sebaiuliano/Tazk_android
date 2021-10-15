@@ -9,4 +9,5 @@
     <color name="primary_dark">	#2c2f33</color>
     <color name="red">#F44336</color>
     <color name="blue">#2196F3</color>
+    <color name="main_background">#FFFFFFFF</color>
 </resources>

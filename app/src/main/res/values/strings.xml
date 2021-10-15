@@ -13,6 +13,8 @@
     <string name="filter">Filter</string>
     <string name="all">All</string>
     <string name="select_date">Select date</string>
+    <string name="select_image">Select image</string>
+    <string name="take_photo">Take photo</string>
     <string-array name="list_categories">
         <item>Tarea</item>
         <item>Error</item>
