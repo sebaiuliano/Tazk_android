@@ -35,8 +35,9 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
 
         setObservers()
         initializeTasksRecyclerView()
-        model.selectedDate.time = System.currentTimeMillis()
-        setDate()
+        model.selectedStartDate.time = System.currentTimeMillis()
+        model.selectedEndDate.time = System.currentTimeMillis()
+        //setDate()
         model.categoriesList = resources.getStringArray(R.array.list_categories).toList()
         model.getTasks()
     }
@@ -101,7 +102,7 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
         model.dateSetMutableHandler.observe(this){
             if (it) {
                 model.dateSetMutableHandler.value = false
-                setDate()
+                //setDate()
                 model.getTasks()
             }
         }
@@ -141,33 +142,34 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
     }
 
     private fun openDatePicker() {
-        val datePicker = MaterialDatePicker.Builder.datePicker()
+        val datePicker = MaterialDatePicker.Builder.dateRangePicker()
             .setTitleText(resources.getString(R.string.select_date))
-            .setSelection(MaterialDatePicker.todayInUtcMilliseconds())
+            .setSelection(androidx.core.util.Pair(Calendar.getInstance().timeInMillis, Calendar.getInstance().timeInMillis))
             .build()
 
         datePicker.addOnPositiveButtonClickListener {
-            val date = Date()
-            date.time = it
-            model.selectedDate = date
+            val dateStart = Date()
+            dateStart.time = it.first
+            val dateEnd = Date()
+            dateEnd.time = it.second
+            model.selectedStartDate = dateStart
+            model.selectedEndDate = dateEnd
             model.dateSetMutableHandler.value = true
             datePicker.dismiss()
         }
 
         datePicker.addOnNegativeButtonClickListener {
-            val date = Date()
-            date.time = System.currentTimeMillis()
-            model.selectedDate = date
+            val dateStart = Date()
+            dateStart.time = System.currentTimeMillis()
+            val dateEnd = Date()
+            dateEnd.time = System.currentTimeMillis()
+            model.selectedStartDate = dateStart
+            model.selectedEndDate = dateEnd
             model.dateSetMutableHandler.value = true
             datePicker.dismiss()
         }
 
         datePicker.show(supportFragmentManager, "date_picker")
-    }
-
-    private fun setDate() {
-        val d = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(model.selectedDate)
-        binding.tvDate.text = d
     }
 
     private fun openFilterDialog() {

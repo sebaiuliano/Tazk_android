@@ -51,7 +51,8 @@ class MainViewModel(
     //filter handlers
     var filterApplyMutableHandler = MutableLiveData<Boolean>()
 
-    var selectedDate = Date()
+    var selectedStartDate = Date()
+    var selectedEndDate = Date()
     var dateSetMutableHandler = MutableLiveData<Boolean>()
 
     fun onNewTaskClick() {
@@ -115,10 +116,11 @@ class MainViewModel(
     fun getTasks() {
         uiScope.launch {
             val sdf = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-            val date = sdf.format(selectedDate)
+            val startDate = sdf.format(selectedStartDate)
+            val endDate = sdf.format(selectedEndDate)
             try {
                 val response = withContext(Dispatchers.IO) {
-                    apiTazkRepository.getTasksByDate(date, date, selectedCategoryFilter)
+                    apiTazkRepository.getTasksByDate(startDate, endDate, selectedCategoryFilter)
                 }
                 Timber.d("GETTASKS REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
                 if (response.isSuccessful) {
@@ -135,26 +137,6 @@ class MainViewModel(
             } catch(e: IOException) {
                 getTasksErrorMutableHandler.postValue(true)
             }
-        }
-    }
-
-    fun goPreviousDate() {
-        changeDay(-1)
-        dateSetMutableHandler.value = true
-    }
-
-    fun goNextDate() {
-        changeDay(1)
-        dateSetMutableHandler.value = true
-    }
-
-    private fun changeDay(daysToAdd: Long) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val selectedInstant = selectedDate.toInstant()
-            val goToInstant = selectedInstant.plus(daysToAdd, ChronoUnit.DAYS)
-            selectedDate = Date.from(goToInstant)
-        } else {
-            selectedDate.time = selectedDate.time + (TimeUnit.DAYS.toMillis(daysToAdd))
         }
     }
 
