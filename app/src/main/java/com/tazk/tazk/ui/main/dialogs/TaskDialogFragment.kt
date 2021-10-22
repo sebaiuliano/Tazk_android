@@ -1,5 +1,6 @@
 package com.tazk.tazk.ui.main.dialogs
 
+import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
@@ -32,7 +33,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
     private val model: MainViewModel by sharedViewModel()
     private val attachmentsAdapter = AttachmentsAdapter(this)
 
-    private var selectedAttachmentPosition : Int = 0
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -156,8 +157,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         model.attachMutableHandler.observe(this) {
             if (it) {
                 model.attachMutableHandler.value = false
-                val fragment = AttachDialogFragment()
-                fragment.show(childFragmentManager, "attach")
+                goAttachDialogFragment()
             }
         }
 
@@ -194,6 +194,11 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         Toast.makeText(requireContext(), "Por favor ingrese un título para poder guardar la tarea", Toast.LENGTH_SHORT).show()
     }
 
+    private fun goAttachDialogFragment() {
+        val fragment = AttachDialogFragment()
+        fragment.show(childFragmentManager, "attach")
+    }
+
     private fun onAttachSuccess() {
         model.attachImageResponse?.let {
             model.attachments.add(it)
@@ -223,23 +228,42 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
     }
 
     override fun onItemClick(item: Any, position: Int) {
-        if (item is ImageResponse) {
-            selectedAttachmentPosition = position
-            model.deleteAttachment(item)
-        }
+        model.selectedAttachmentPosition = position
+        goImageDialogFragment()
     }
 
     override fun onItemLongClick(item: Any, position: Int) {
-        //nada por ahora
+        if (item is ImageResponse && position >= 0) {
+            model.selectedAttachmentPosition = position
+            model.deleteAttachment(item)
+        } else {
+            Toast.makeText(requireContext(), "No se pudo eliminar la imagen, por favor reintente", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun onDeleteAttachmentSuccess() {
-        attachmentsAdapter.deleteAttachment(selectedAttachmentPosition)
+        if (model.selectedAttachmentPosition >= 0) {
+            attachmentsAdapter.deleteAttachment(model.selectedAttachmentPosition)
+        }
         checkShowAttachments()
+        resetSelectedAttachment()
     }
 
     private fun onDeleteAttachmentFailure() {
         Toast.makeText(requireContext(), "Error al eliminar archivo adjunto, por favor reintente", Toast.LENGTH_SHORT).show()
     }
 
+    private fun goImageDialogFragment() {
+        val fragment = LargeImageDialogFragment()
+        fragment.show(childFragmentManager, "large_image")
+    }
+
+    private fun resetSelectedAttachment() {
+        model.selectedAttachmentPosition = -1
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        model.attachments = ArrayList()
+    }
 }

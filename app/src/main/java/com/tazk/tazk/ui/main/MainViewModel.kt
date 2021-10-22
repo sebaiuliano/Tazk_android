@@ -31,6 +31,7 @@ class MainViewModel(
     var file : File? = null
     var attachImageResponse : ImageResponse? = null
     var attachments: MutableList<ImageResponse> = ArrayList()
+    var selectedAttachmentPosition : Int = -1
 
     //newTask handlers
     var newTaskClickMutableHandler: MutableLiveData<Boolean> = MutableLiveData()

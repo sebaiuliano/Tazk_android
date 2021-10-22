@@ -18,6 +18,10 @@ class AttachmentViewHolder (
         itemView.setOnClickListener {
             listener.onItemClick(imageResponse, adapterPosition)
         }
+        itemView.setOnLongClickListener {
+            listener.onItemLongClick(imageResponse, position)
+            true
+        }
     }
 
     private fun setAttachment(attachment: ImageResponse){
