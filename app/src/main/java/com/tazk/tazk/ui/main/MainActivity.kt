@@ -16,9 +16,7 @@ import com.tazk.tazk.ui.main.dialogs.FilterDialogFragment
 import com.tazk.tazk.ui.main.dialogs.TaskDialogFragment
 import com.tazk.tazk.util.SwipeToDeleteCallback
 import com.tazk.tazk.util.listeners.CustomClickListener
-import com.tazk.tazk.util.services.WifiService
 import org.koin.android.viewmodel.ext.android.viewModel
-import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity(), CustomClickListener {
