@@ -15,12 +15,14 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.google.android.material.datepicker.MaterialDatePicker
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.DialogTaskBinding
 import com.tazk.tazk.entities.network.response.ImageResponse
 import com.tazk.tazk.entities.task.Task
 import com.tazk.tazk.ui.main.MainViewModel
 import com.tazk.tazk.ui.main.adapters.AttachmentsAdapter
+import com.tazk.tazk.util.Tools
 import com.tazk.tazk.util.listeners.CustomClickListener
 import org.koin.android.viewmodel.ext.android.sharedViewModel
 import java.util.*
@@ -119,9 +121,15 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         model.selectedTask?.let {
             mBinding.etTitle.setText(it.title)
             mBinding.etDescription.setText(it.description)
+            mBinding.etDate.setText(Tools.gregorianCalendarToString(it.createdAt, "dd/MM/yyyy"))
             model.attachments = it.image.toMutableList()
             attachmentsAdapter.setAttachments(model.attachments)
             checkShowAttachments()
+        } ?: run {
+            val date = Date(System.currentTimeMillis())
+            val gc = GregorianCalendar()
+            gc.timeInMillis = date.time
+            mBinding.etDate.setText(Tools.gregorianCalendarToString(gc, "dd/MM/yyyy"))
         }
     }
 
@@ -129,17 +137,17 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         model.saveTaskClickMutableHandler.observe(this) {
             if (it) {
                 model.saveTaskClickMutableHandler.value = false
-                val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    resources.configuration.locales[0]
-                } else {
-                    resources.configuration.locale
-                }
-                val gc = GregorianCalendar.getInstance(locale) as GregorianCalendar
+//                val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+//                    resources.configuration.locales[0]
+//                } else {
+//                    resources.configuration.locale
+//                }
+//                val gc = GregorianCalendar.getInstance(locale) as GregorianCalendar
                 val task = Task(
                     model.selectedTask?.id,
                     mBinding.etTitle.text.toString(),
                     mBinding.etDescription.text.toString(),
-                    model.selectedTask?.createdAt ?: gc,
+                    model.taskDate,
                     model.selectedTask?.category ?: model.selectedCategory,
                 )
                 if (model.attachments.isNotEmpty()) {
@@ -186,6 +194,13 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             if (it) {
                 model.onDeleteAttachmentFailureMutableHandler.value = false
                 onDeleteAttachmentFailure()
+            }
+        }
+
+        model.dateClickMutableHandler.observe(this) {
+            if (it) {
+                model.dateClickMutableHandler.value = false
+                openDatePicker()
             }
         }
     }
@@ -260,6 +275,29 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
 
     private fun resetSelectedAttachment() {
         model.selectedAttachmentPosition = -1
+    }
+
+    private fun openDatePicker() {
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText(resources.getString(R.string.select_date))
+            .setSelection(Calendar.getInstance().timeInMillis)
+            .build()
+
+        datePicker.addOnPositiveButtonClickListener {
+            val dateStart = Date()
+            dateStart.time = it
+            val gc = GregorianCalendar()
+            gc.timeInMillis = dateStart.time
+            model.taskDate = gc
+            mBinding.etDate.setText(Tools.gregorianCalendarToString(gc, "dd/MM/yyyy"))
+            datePicker.dismiss()
+        }
+
+        datePicker.addOnNegativeButtonClickListener {
+            datePicker.dismiss()
+        }
+
+        datePicker.show(childFragmentManager, "date_picker")
     }
 
     override fun onDismiss(dialog: DialogInterface) {
