@@ -3,7 +3,6 @@ package com.tazk.tazk.ui.main.dialogs
 import android.content.DialogInterface
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -121,7 +120,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         model.selectedTask?.let {
             mBinding.etTitle.setText(it.title)
             mBinding.etDescription.setText(it.description)
-            mBinding.etDate.setText(Tools.gregorianCalendarToString(it.createdAt, "dd/MM/yyyy"))
+            mBinding.etDate.setText(Tools.gregorianCalendarToString(it.date, "dd/MM/yyyy"))
             model.attachments = it.image.toMutableList()
             attachmentsAdapter.setAttachments(model.attachments)
             checkShowAttachments()
@@ -201,6 +200,25 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             if (it) {
                 model.dateClickMutableHandler.value = false
                 openDatePicker()
+            }
+        }
+
+        model.reminderCheckChangeMutableHandler.observe(this) {
+            if (it) {
+                model.reminderCheckChangeMutableHandler.value = false
+                with(mBinding) {
+                    if (swReminder.isChecked) {
+                        tvReminderDate.visibility = View.VISIBLE
+                        etReminderDate.visibility = View.VISIBLE
+                        tvReminderTime.visibility = View.VISIBLE
+                        etReminderTime.visibility = View.VISIBLE
+                    } else {
+                        tvReminderDate.visibility = View.GONE
+                        etReminderDate.visibility = View.GONE
+                        tvReminderTime.visibility = View.GONE
+                        etReminderTime.visibility = View.GONE
+                    }
+                }
             }
         }
     }

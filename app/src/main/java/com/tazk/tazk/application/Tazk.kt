@@ -1,6 +1,8 @@
 package com.tazk.tazk.application
 
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.play.core.splitcompat.SplitCompatApplication
+import com.google.firebase.messaging.FirebaseMessaging
 import com.tazk.tazk.application.modules.*
 import com.tazk.tazk.application.modules.entities.taskModule
 import com.tazk.tazk.util.services.WifiService
@@ -8,6 +10,7 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 import org.koin.core.logger.Level
+import timber.log.Timber
 
 class Tazk: SplitCompatApplication() {
     override fun onCreate() {

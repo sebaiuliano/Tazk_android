@@ -4,7 +4,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.tazk.tazk.repository.ApiTazkRepository
-import com.tazk.tazk.util.services.WifiService
 import kotlinx.coroutines.*
 import timber.log.Timber
 
@@ -18,11 +17,11 @@ class LoginViewModel(
     var signInErrorMutableHandler = MutableLiveData<Boolean>()
     var noInternetMutableHandler = MutableLiveData<Boolean>()
 
-    fun successfulGoogleLogin(account: GoogleSignInAccount) {
+    fun successfulGoogleLogin(account: GoogleSignInAccount, registrationToken: String) {
         uiScope.launch {
             account.idToken?.let { token ->
                 val response = withContext(Dispatchers.IO) {
-                    apiTazkRepository.signIn(token)
+                    apiTazkRepository.signIn(token, registrationToken)
                 }
                 Timber.d("LOGIN REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
                 when {

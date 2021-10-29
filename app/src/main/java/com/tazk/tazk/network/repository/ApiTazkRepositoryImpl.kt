@@ -26,9 +26,9 @@ class ApiTazkRepositoryImpl(
         private var idToken: String = ""
     }
 
-    override suspend fun signIn(token: String): Response<BasicResponse> {
+    override suspend fun signIn(token: String, registrationToken: String): Response<BasicResponse> {
         idToken = token
-        return apiTazk.signIn(idToken)
+        return apiTazk.signIn(idToken, registrationToken)
     }
 
     override suspend fun createTask(task: Task): Boolean {

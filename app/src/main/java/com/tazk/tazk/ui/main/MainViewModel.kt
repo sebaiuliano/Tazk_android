@@ -32,7 +32,7 @@ class MainViewModel(
     var attachImageResponse : ImageResponse? = null
     var attachments: MutableList<ImageResponse> = ArrayList()
     var selectedAttachmentPosition : Int = -1
-    var taskDate = selectedTask?.createdAt ?: GregorianCalendar()
+    var taskDate = selectedTask?.date ?: GregorianCalendar()
 
     //newTask handlers
     var newTaskClickMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
@@ -49,6 +49,7 @@ class MainViewModel(
     var saveTaskMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
     var saveTaskErrorMutableHandler = MutableLiveData<Boolean>()
     var dateClickMutableHandler = MutableLiveData<Boolean>()
+    var reminderCheckChangeMutableHandler = MutableLiveData<Boolean>()
 
     //filter handlers
     var filterApplyMutableHandler = MutableLiveData<Boolean>()
@@ -219,5 +220,17 @@ class MainViewModel(
 
     fun onDateClick() {
         dateClickMutableHandler.postValue(true)
+    }
+
+    fun onReminderCheckChange() {
+        reminderCheckChangeMutableHandler.postValue(true)
+    }
+
+    fun onReminderDateClick() {
+
+    }
+
+    fun onReminderTimeClick() {
+
     }
 }

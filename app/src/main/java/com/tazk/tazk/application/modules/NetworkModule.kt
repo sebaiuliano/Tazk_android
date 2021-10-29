@@ -4,15 +4,12 @@ import com.squareup.moshi.Moshi
 import com.tazk.tazk.application.modules.Properties.BASE_URL
 import com.tazk.tazk.util.interceptors.ConnectivityInterceptor
 import com.tazk.tazk.util.moshiconverters.DateStringConverter
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import timber.log.Timber
 
 object Properties {
     var BASE_URL = "https://tazk-app.herokuapp.com/"
@@ -41,6 +38,7 @@ val networkModule = module {
 
     fun provideMoshi() = Moshi.Builder()
         .add(DateStringConverter())
+//        .add(DateTimeStringConverter())
         .build()
 
     single (named("http")) {

@@ -15,7 +15,10 @@ import java.io.File
 
 interface ApiTazk {
     @POST("/signInOrSignUp")
-    suspend fun signIn(@Header("idToken") idToken:String) : Response<BasicResponse>
+    suspend fun signIn(
+        @Header("idToken") idToken: String,
+        @Header("registrationToken") registrationToken: String
+    ) : Response<BasicResponse>
     @POST("/tazk")
     suspend fun createTask(@Header("idToken") idToken: String, @Body task: Task) : Response<BasicResponse>
     @PUT("/tazk")
@@ -35,7 +38,6 @@ interface ApiTazk {
         @Header("idToken") idToken: String,
         @Part image: MultipartBody.Part
     ): Response<ImageResponseWrapper>
-//    @DELETE("/tazk/image")
     @HTTP(method = "DELETE", path = "/tazk/image", hasBody = true)
     suspend fun deleteImage(@Header("idToken") idToken: String, @Body deleteImageRequest: DeleteImageRequest): Response<BasicResponse>
 }

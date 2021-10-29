@@ -147,17 +147,84 @@
             android:orientation="horizontal"
             tools:listitem="@layout/item_attachment" />
 
+        <androidx.appcompat.widget.SwitchCompat
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/sw_reminder"
+            app:layout_constraintTop_toBottomOf="@id/rv_attachments"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/reminder"
+            android:checked="false"
+            android:onCheckedChanged="@{() -> mainViewModel.onReminderCheckChange()}"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_reminder_date"
+            app:layout_constraintTop_toBottomOf="@id/sw_reminder"
+            app:layout_constraintStart_toStartOf="parent"
+            android:text="@string/reminder_date"
+            android:visibility="gone"
+            />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/et_reminder_date"
+            app:layout_constraintTop_toBottomOf="@id/tv_reminder_date"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="21/10/2021"
+            android:enabled="false"
+            android:onClick="@{() -> mainViewModel.onReminderDateClick()}"
+            android:importantForAutofill="no"
+            android:inputType="date"
+            android:visibility="gone"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/tv_reminder_time"
+            app:layout_constraintTop_toTopOf="@id/tv_reminder_date"
+            app:layout_constraintStart_toStartOf="@id/ver_guideline_5000"
+            android:text="@string/reminder_time"
+            android:visibility="gone"
+            />
+
+        <EditText
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/et_reminder_time"
+            app:layout_constraintTop_toBottomOf="@id/tv_reminder_time"
+            app:layout_constraintStart_toStartOf="@id/tv_reminder_time"
+            tools:text="18:00"
+            android:enabled="false"
+            android:onClick="@{() -> mainViewModel.onReminderTimeClick()}"
+            android:importantForAutofill="no"
+            android:inputType="time"
+            android:visibility="gone"
+            />
+
         <Button
             android:layout_width="300dp"
             android:layout_height="wrap_content"
             android:id="@+id/btn_save"
-            app:layout_constraintTop_toBottomOf="@id/rv_attachments"
+            app:layout_constraintTop_toBottomOf="@id/et_reminder_time"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:text="@string/save"
             android:layout_margin="20dp"
             android:onClick="@{() -> mainViewModel.onSaveTask()}"
             android:textColor="@color/white"
+            />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/ver_guideline_5000"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"
             />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
