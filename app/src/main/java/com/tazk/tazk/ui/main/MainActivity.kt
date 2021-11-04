@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.ItemTouchHelper
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.firebase.messaging.FirebaseMessaging
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.ActivityMainBinding
 import com.tazk.tazk.entities.task.Task
@@ -17,6 +18,7 @@ import com.tazk.tazk.ui.main.dialogs.TaskDialogFragment
 import com.tazk.tazk.util.SwipeToDeleteCallback
 import com.tazk.tazk.util.listeners.CustomClickListener
 import org.koin.android.viewmodel.ext.android.viewModel
+import timber.log.Timber
 import java.util.*
 
 class MainActivity : AppCompatActivity(), CustomClickListener {

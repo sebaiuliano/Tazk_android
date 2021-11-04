@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.tazk.tazk.repository.ApiTazkRepository
 import kotlinx.coroutines.*
-import timber.log.Timber
 
 class LoginViewModel(
     private val apiTazkRepository: ApiTazkRepository
@@ -23,7 +22,7 @@ class LoginViewModel(
                 val response = withContext(Dispatchers.IO) {
                     apiTazkRepository.signIn(token, registrationToken)
                 }
-                Timber.d("LOGIN REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
+                println("LOGIN REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
                 when {
                     response.isSuccessful -> { signInSuccessMutableHandler.postValue(true) }
                     response.code() == 600 -> { noInternetMutableHandler.postValue(true) }

@@ -20,7 +20,7 @@ class DateStringConverter {
     @DateString
     fun fromJson(dateString: String): GregorianCalendar? {
         return if (dateString.isNotEmpty()) {
-            val df = SimpleDateFormat("yyyy-MM-dd'T'hh:mm")
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
             val date: Date? = df.parse(dateString)
             val cal = GregorianCalendar()
             if (date != null) {
@@ -40,7 +40,7 @@ class DateStringConverter {
     fun toJson(@DateString calendar: GregorianCalendar?): String{
         return if (calendar != null) {
             val cal: Calendar = calendar
-            val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'hh:mm")
+            val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
             df.format(cal.time)
         } else {
             ""

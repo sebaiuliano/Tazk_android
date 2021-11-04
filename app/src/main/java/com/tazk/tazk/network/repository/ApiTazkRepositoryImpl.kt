@@ -2,6 +2,7 @@ package com.tazk.tazk.network.repository
 
 import com.tazk.tazk.entities.network.request.DeleteImageRequest
 import com.tazk.tazk.entities.network.request.ImageRequest
+import com.tazk.tazk.entities.network.request.SignInRequest
 import com.tazk.tazk.entities.network.response.BasicResponse
 import com.tazk.tazk.entities.network.response.ImageResponse
 import com.tazk.tazk.entities.network.response.ImageResponseWrapper
@@ -13,6 +14,7 @@ import com.tazk.tazk.repository.TaskRepository
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import org.json.JSONObject
 import retrofit2.Response
 import java.io.File
 import java.io.IOException
@@ -28,7 +30,13 @@ class ApiTazkRepositoryImpl(
 
     override suspend fun signIn(token: String, registrationToken: String): Response<BasicResponse> {
         idToken = token
-        return apiTazk.signIn(idToken, registrationToken)
+        return apiTazk.signIn(idToken, SignInRequest(registrationToken))
+    }
+
+    override suspend fun updateRegistrationToken(
+        registrationToken: String
+    ): Response<BasicResponse> {
+        return apiTazk.updateRegistrationToken(idToken, SignInRequest(registrationToken))
     }
 
     override suspend fun createTask(task: Task): Boolean {

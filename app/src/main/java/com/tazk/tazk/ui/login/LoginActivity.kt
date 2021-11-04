@@ -17,7 +17,6 @@ import com.google.android.gms.tasks.Task
 import com.google.firebase.messaging.FirebaseMessaging
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.ActivityLoginBinding
-import com.tazk.tazk.services.CustomFirebaseMessagingService
 import com.tazk.tazk.ui.main.MainActivity
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
@@ -48,9 +47,9 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         mGoogleSignInClient.silentSignIn().addOnCompleteListener(this) { task -> handleSignInResult(task) }
 
         binding.signInButton.setOnClickListener {
-            if (account == null) {
+//            if (account == null) {
                 goSignIn()
-            }
+//            }
         }
     }
 
@@ -79,18 +78,15 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             }
         } catch (e: ApiException) {
             Timber.e("signInResult:failed code= ${e.statusCode}")
-            println("signInResult:failed code= ${e.statusCode}")
 //            failedLogin()
             goMainActivity()
         } catch (e: RuntimeException) {
             Timber.e("signInResult:failed code= ${e.message}")
-            println("signInResult:failed code= ${e.message}")
             if ((e.cause as? ApiException)?.statusCode == 7) {
                 goMainActivity()
             } else {
                 failedLogin()
             }
-
         }
     }
 
@@ -145,6 +141,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             }
             // Get new FCM registration token
             val token = task.result
+            println("REGISTRATIONTOKEN: $token")
             model.successfulGoogleLogin(account!!, token)
         })
     }

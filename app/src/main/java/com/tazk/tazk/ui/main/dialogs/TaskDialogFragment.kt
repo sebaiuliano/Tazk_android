@@ -15,6 +15,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.datepicker.MaterialDatePicker
+import com.google.android.material.timepicker.MaterialTimePicker
+import com.google.android.material.timepicker.TimeFormat
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.DialogTaskBinding
 import com.tazk.tazk.entities.network.response.ImageResponse
@@ -116,7 +118,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         mBinding.rvAttachments.adapter = attachmentsAdapter
     }
 
-    private fun initializeTaskData(){
+    private fun initializeTaskData() {
         model.selectedTask?.let {
             mBinding.etTitle.setText(it.title)
             mBinding.etDescription.setText(it.description)
@@ -124,6 +126,13 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             model.attachments = it.image.toMutableList()
             attachmentsAdapter.setAttachments(model.attachments)
             checkShowAttachments()
+            it.notificationDate?.let { notificationDate ->
+                model.reminderDate = notificationDate
+                mBinding.etReminderDate.setText(Tools.gregorianCalendarToString(notificationDate, "dd/MM/yyyy"))
+                mBinding.etReminderTime.setText(Tools.gregorianCalendarToString(notificationDate, "HH:mm"))
+                mBinding.swReminder.isChecked = true
+                showReminderFields()
+            }
         } ?: run {
             val date = Date(System.currentTimeMillis())
             val gc = GregorianCalendar()
@@ -146,8 +155,9 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
                     model.selectedTask?.id,
                     mBinding.etTitle.text.toString(),
                     mBinding.etDescription.text.toString(),
-                    model.taskDate,
+                    model.taskDate.atStartOfDay(),
                     model.selectedTask?.category ?: model.selectedCategory,
+                    if (model.hasReminder) model.reminderDate else null
                 )
                 if (model.attachments.isNotEmpty()) {
                     task.image = model.attachments
@@ -206,19 +216,25 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         model.reminderCheckChangeMutableHandler.observe(this) {
             if (it) {
                 model.reminderCheckChangeMutableHandler.value = false
-                with(mBinding) {
-                    if (swReminder.isChecked) {
-                        tvReminderDate.visibility = View.VISIBLE
-                        etReminderDate.visibility = View.VISIBLE
-                        tvReminderTime.visibility = View.VISIBLE
-                        etReminderTime.visibility = View.VISIBLE
-                    } else {
-                        tvReminderDate.visibility = View.GONE
-                        etReminderDate.visibility = View.GONE
-                        tvReminderTime.visibility = View.GONE
-                        etReminderTime.visibility = View.GONE
-                    }
+                if (mBinding.swReminder.isChecked) {
+                    showReminderFields()
+                } else {
+                    hideReminderFields()
                 }
+            }
+        }
+
+        model.reminderDateClickMutableHandler.observe(this) {
+            if (it) {
+                model.reminderDateClickMutableHandler.postValue(false)
+                openReminderDatePicker()
+            }
+        }
+
+        model.reminderTimeClickMutableHandler.observe(this) {
+            if (it) {
+                model.reminderTimeClickMutableHandler.postValue(false)
+                openReminderTimePicker()
             }
         }
     }
@@ -306,7 +322,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             dateStart.time = it
             val gc = GregorianCalendar()
             gc.timeInMillis = dateStart.time
-            model.taskDate = gc
+            model.taskDate = gc.atStartOfDay()
             mBinding.etDate.setText(Tools.gregorianCalendarToString(gc, "dd/MM/yyyy"))
             datePicker.dismiss()
         }
@@ -318,8 +334,92 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         datePicker.show(childFragmentManager, "date_picker")
     }
 
+    private fun openReminderDatePicker() {
+        val datePicker = MaterialDatePicker.Builder.datePicker()
+            .setTitleText(resources.getString(R.string.select_date))
+            .setSelection(Calendar.getInstance().timeInMillis)
+            .build()
+
+        datePicker.addOnPositiveButtonClickListener {
+            val dateStart = Date()
+            dateStart.time = it
+            val gc = GregorianCalendar()
+            gc.timeInMillis = dateStart.time
+            model.reminderDate = gc.atStartOfDay()
+            mBinding.etReminderDate.setText(Tools.gregorianCalendarToString(model.reminderDate, "dd/MM/yyyy"))
+            datePicker.dismiss()
+        }
+
+        datePicker.addOnNegativeButtonClickListener {
+            datePicker.dismiss()
+        }
+
+        datePicker.show(childFragmentManager, "reminder_date_picker")
+    }
+
+    private fun openReminderTimePicker() {
+        val timePicker = model.selectedTask?.notificationDate?.let {
+            val hour = Tools.gregorianCalendarToString(it, "HH")
+            val minutes = Tools.gregorianCalendarToString(it, "mm")
+            MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setHour(hour.toIntOrNull() ?: 0)
+                .setMinute(minutes.toIntOrNull() ?: 0)
+                .setTitleText(resources.getString(R.string.select_time))
+                .build()
+        } ?: run {
+            MaterialTimePicker.Builder()
+                .setTimeFormat(TimeFormat.CLOCK_24H)
+                .setTitleText(resources.getString(R.string.select_time))
+                .build()
+        }
+
+        timePicker.addOnPositiveButtonClickListener {
+            model.reminderDate.add(GregorianCalendar.HOUR, timePicker.hour)
+            model.reminderDate.add(GregorianCalendar.MINUTE, timePicker.minute)
+            mBinding.etReminderTime.setText("${timePicker.hour}:${timePicker.minute}")
+            timePicker.dismiss()
+        }
+
+        timePicker.show(childFragmentManager, "reminder_time_picker")
+    }
+
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
         model.attachments = ArrayList()
+        model.taskDate = GregorianCalendar()
+        model.reminderDate = GregorianCalendar()
+    }
+
+    private fun GregorianCalendar.atStartOfDay() : GregorianCalendar {
+        this.set(Calendar.HOUR_OF_DAY, 0)
+        this.set(Calendar.MINUTE, 0)
+        this.set(Calendar.SECOND, 0)
+        this.set(Calendar.MILLISECOND, 0)
+        return this
+    }
+
+    private fun showReminderFields() {
+        model.hasReminder = true
+        with(mBinding) {
+            tvReminderDate.visibility = View.VISIBLE
+            etReminderDate.visibility = View.VISIBLE
+            ibReminderDate.visibility = View.VISIBLE
+            tvReminderTime.visibility = View.VISIBLE
+            etReminderTime.visibility = View.VISIBLE
+            ibReminderTime.visibility = View.VISIBLE
+        }
+    }
+
+    private fun hideReminderFields() {
+        model.hasReminder = false
+        with(mBinding){
+            tvReminderDate.visibility = View.GONE
+            etReminderDate.visibility = View.GONE
+            ibReminderDate.visibility = View.GONE
+            tvReminderTime.visibility = View.GONE
+            etReminderTime.visibility = View.GONE
+            ibReminderTime.visibility = View.GONE
+        }
     }
 }
