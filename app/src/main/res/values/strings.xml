@@ -13,6 +13,7 @@
     <string name="filter">Filter</string>
     <string name="all">All</string>
     <string name="select_date">Select date</string>
+    <string name="select_time">Select time</string>
     <string name="select_image">Select image</string>
     <string name="take_photo">Take photo</string>
     <string-array name="list_categories">
@@ -20,4 +21,7 @@
         <item>Error</item>
         <item>Otro</item>
     </string-array>
+    <string name="reminder">Reminder</string>
+    <string name="reminder_date">Reminder date</string>
+    <string name="reminder_time">Reminder time</string>
 </resources>

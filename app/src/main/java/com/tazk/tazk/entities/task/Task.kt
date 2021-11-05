@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import com.tazk.tazk.entities.network.response.ImageResponse
-import com.tazk.tazk.util.moshiconverters.FechaString
-import java.io.File
+import com.tazk.tazk.util.moshiconverters.DateString
 import java.util.*
 
 @JsonClass(generateAdapter = true)
@@ -22,16 +21,16 @@ data class Task (
     var id: String?,
     var title: String,
     var description: String,
-    @Json(name="dateCreated")
-    @ColumnInfo(name = "created_at")
-    @FechaString
-    var createdAt: GregorianCalendar,
+    @DateString
+    var date: GregorianCalendar,
     var category: String,
 //    @Transient
 //    @Ignore
 //    var attachments: List<File> = ArrayList(),
     @Ignore
-    var image: List<ImageResponse>
+    var image: List<ImageResponse>,
+    @DateString
+    var notificationDate: GregorianCalendar?
 ) {
     @Ignore
     constructor(title: String, description: String) : this(
@@ -41,7 +40,8 @@ data class Task (
         description,
         GregorianCalendar(),
         "",
-        ArrayList()
+        ArrayList(),
+        GregorianCalendar()
     )
 
     @Ignore
@@ -52,7 +52,8 @@ data class Task (
         description,
         GregorianCalendar(),
         category,
-        ArrayList()
+        ArrayList(),
+        GregorianCalendar()
     )
 
     @Ignore
@@ -63,16 +64,30 @@ data class Task (
         description,
         GregorianCalendar(),
         category,
-        ArrayList()
+        ArrayList(),
+        GregorianCalendar()
     )
 
-    constructor(id: String?, title: String, description: String, createdAt: GregorianCalendar, category: String) : this(
+    @Ignore
+    constructor(id: String?, title: String, description: String, date: GregorianCalendar, category: String) : this(
         0L,
         id,
         title,
         description,
-        createdAt,
+        date,
         category,
-        ArrayList()
+        ArrayList(),
+        GregorianCalendar()
+    )
+
+    constructor(id: String?, title: String, description: String, date: GregorianCalendar, category: String, notificationDate: GregorianCalendar?) : this(
+        0L,
+        id,
+        title,
+        description,
+        date,
+        category,
+        ArrayList(),
+        notificationDate
     )
 }

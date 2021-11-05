@@ -11,7 +11,8 @@ import retrofit2.Response
 import java.io.File
 
 interface ApiTazkRepository {
-    suspend fun signIn(token: String) : Response<BasicResponse>
+    suspend fun signIn(token: String, registrationToken: String) : Response<BasicResponse>
+    suspend fun updateRegistrationToken(registrationToken: String) : Response<BasicResponse>
     suspend fun createTask(task: Task) : Boolean
     suspend fun updateTask(task: Task) : Boolean
     suspend fun deleteTask(id: String) : Boolean

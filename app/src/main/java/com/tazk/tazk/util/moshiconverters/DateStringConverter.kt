@@ -11,34 +11,39 @@ import java.util.*
 
 @Retention(AnnotationRetention.RUNTIME)
 @JsonQualifier
-annotation class FechaString
+annotation class DateString
 
 class DateStringConverter {
     @TypeConverter
     @SuppressLint("SimpleDateFormat")
     @FromJson
-    @FechaString
-    fun fromJson(fecha: String): GregorianCalendar? {
-        val df: DateFormat = if(fecha.length == 10){
-            SimpleDateFormat("yyyy-MM-dd")
-        }else{
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    @DateString
+    fun fromJson(dateString: String): GregorianCalendar? {
+        return if (dateString.isNotEmpty()) {
+            val df = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
+            val date: Date? = df.parse(dateString)
+            val cal = GregorianCalendar()
+            if (date != null) {
+                cal.time = date
+                cal
+            } else {
+                null
+            }
+        } else {
+            null
         }
-        val date: Date? = df.parse(fecha)
-        val cal = GregorianCalendar()
-        if (date != null)
-            cal.time = date
-        else
-            return null
-        return cal
     }
 
     @TypeConverter
     @SuppressLint("SimpleDateFormat")
     @ToJson
-    fun toJson(@FechaString calendar: GregorianCalendar): String{
-        val cal: Calendar = calendar
-        val df: DateFormat = SimpleDateFormat("yyyy-MM-dd")
-        return df.format(cal.time)
+    fun toJson(@DateString calendar: GregorianCalendar?): String{
+        return if (calendar != null) {
+            val cal: Calendar = calendar
+            val df: DateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm", Locale.getDefault())
+            df.format(cal.time)
+        } else {
+            ""
+        }
     }
 }

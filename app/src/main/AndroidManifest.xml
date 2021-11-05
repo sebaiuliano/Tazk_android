@@ -20,6 +20,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Tazk"
         >
+        <service
+            android:name=".services.CustomFirebaseMessagingService"
+            android:exported="false">
+<!--            android:directBootAware="true"-->
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

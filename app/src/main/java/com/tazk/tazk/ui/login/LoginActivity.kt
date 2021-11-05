@@ -12,7 +12,9 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.internal.OnConnectionFailedListener
+import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
+import com.google.firebase.messaging.FirebaseMessaging
 import com.tazk.tazk.R
 import com.tazk.tazk.databinding.ActivityLoginBinding
 import com.tazk.tazk.ui.main.MainActivity
@@ -45,9 +47,9 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         mGoogleSignInClient.silentSignIn().addOnCompleteListener(this) { task -> handleSignInResult(task) }
 
         binding.signInButton.setOnClickListener {
-            if (account == null) {
+//            if (account == null) {
                 goSignIn()
-            }
+//            }
         }
     }
 
@@ -69,24 +71,22 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             account = completedTask.result
             account?.let {
                 println("IDTOKEN: ${it.idToken}")
-                model.successfulGoogleLogin(it)
+                //De aca va a buscar el token de FCM
+                getRegistrationToken()
             } ?: run {
                 goSignIn()
             }
         } catch (e: ApiException) {
             Timber.e("signInResult:failed code= ${e.statusCode}")
-            println("signInResult:failed code= ${e.statusCode}")
 //            failedLogin()
             goMainActivity()
         } catch (e: RuntimeException) {
             Timber.e("signInResult:failed code= ${e.message}")
-            println("signInResult:failed code= ${e.message}")
             if ((e.cause as? ApiException)?.statusCode == 7) {
                 goMainActivity()
             } else {
                 failedLogin()
             }
-
         }
     }
 
@@ -131,4 +131,20 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
     override fun onConnectionFailed(p0: ConnectionResult) {
         println("CONNECTION FAILED")
     }
+
+    private fun getRegistrationToken() {
+        //Seteo un listener para que, cuando vuelva el token, le mande el login al srv con toda la info
+        FirebaseMessaging.getInstance().token.addOnCompleteListener(OnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Timber.e(task.exception)
+                return@OnCompleteListener
+            }
+            // Get new FCM registration token
+            val token = task.result
+            println("REGISTRATIONTOKEN: $token")
+            model.successfulGoogleLogin(account!!, token)
+        })
+    }
+
+
 }
