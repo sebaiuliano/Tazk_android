@@ -54,6 +54,7 @@ class MainViewModel(
     var reminderCheckChangeMutableHandler = MutableLiveData<Boolean>()
     var reminderDateClickMutableHandler = MutableLiveData<Boolean>()
     var reminderTimeClickMutableHandler = MutableLiveData<Boolean>()
+    var micClickMutableHandler = MutableLiveData<Boolean>()
 
     //filter handlers
     var filterApplyMutableHandler = MutableLiveData<Boolean>()
@@ -199,7 +200,7 @@ class MainViewModel(
             val responseAttachment = withContext(Dispatchers.IO) {
                 apiTazkRepository.deleteImage(DeleteImageRequest(attachment.publicId))
             }
-            println("UPLOAD IMAGE SUCCESS: ${responseAttachment.isSuccessful} - ${responseAttachment.body()}")
+            println("DELETE IMAGE SUCCESS: ${responseAttachment.isSuccessful} - ${responseAttachment.body()}")
             if (responseAttachment.isSuccessful) {
                 selectedTask?.let {
                     val responseTask = withContext(Dispatchers.IO) {
@@ -237,5 +238,9 @@ class MainViewModel(
 
     fun onReminderTimeClick() {
         reminderTimeClickMutableHandler.postValue(true)
+    }
+
+    fun onMicClick() {
+        micClickMutableHandler.postValue(true)
     }
 }
