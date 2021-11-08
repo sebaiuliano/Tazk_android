@@ -339,8 +339,9 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             .build()
 
         datePicker.addOnPositiveButtonClickListener {
-            val dateStart = Date()
+            var dateStart = Date()
             dateStart.time = it
+            dateStart = Tools.dateWithOffset(dateStart)
             val gc = GregorianCalendar()
             gc.timeInMillis = dateStart.time
             model.taskDate = gc.atStartOfDay()
@@ -362,8 +363,9 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             .build()
 
         datePicker.addOnPositiveButtonClickListener {
-            val dateStart = Date()
+            var dateStart = Date()
             dateStart.time = it
+            dateStart = Tools.dateWithOffset(dateStart)
             val gc = GregorianCalendar()
             gc.timeInMillis = dateStart.time
             model.reminderDate = gc.atStartOfDay()
@@ -398,7 +400,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         timePicker.addOnPositiveButtonClickListener {
             model.reminderDate.add(GregorianCalendar.HOUR, timePicker.hour)
             model.reminderDate.add(GregorianCalendar.MINUTE, timePicker.minute)
-            mBinding.etReminderTime.setText("${timePicker.hour}:${timePicker.minute}")
+            mBinding.etReminderTime.setText("${timePicker.hour.toString().padStart(2, '0')}:${timePicker.minute.toString().padStart(2, '0')}")
             timePicker.dismiss()
         }
 

@@ -16,6 +16,7 @@ import com.tazk.tazk.ui.main.adapters.TasksAdapter
 import com.tazk.tazk.ui.main.dialogs.FilterDialogFragment
 import com.tazk.tazk.ui.main.dialogs.TaskDialogFragment
 import com.tazk.tazk.util.SwipeToDeleteCallback
+import com.tazk.tazk.util.Tools
 import com.tazk.tazk.util.listeners.CustomClickListener
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
@@ -159,10 +160,12 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
             .build()
 
         datePicker.addOnPositiveButtonClickListener {
-            val dateStart = Date()
+            var dateStart = Date()
             dateStart.time = it.first
-            val dateEnd = Date()
+            dateStart = Tools.dateWithOffset(dateStart)
+            var dateEnd = Date()
             dateEnd.time = it.second
+            dateEnd = Tools.dateWithOffset(dateEnd)
             model.selectedStartDate = dateStart
             model.selectedEndDate = dateEnd
             model.dateSetMutableHandler.value = true
@@ -170,10 +173,12 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
         }
 
         datePicker.addOnNegativeButtonClickListener {
-            val dateStart = Date()
+            var dateStart = Date()
             dateStart.time = System.currentTimeMillis()
-            val dateEnd = Date()
+            dateStart = Tools.dateWithOffset(dateStart)
+            var dateEnd = Date()
             dateEnd.time = System.currentTimeMillis()
+            dateEnd = Tools.dateWithOffset(dateEnd)
             model.selectedStartDate = dateStart
             model.selectedEndDate = dateEnd
             model.dateSetMutableHandler.value = true
