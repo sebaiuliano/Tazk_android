@@ -1,16 +1,23 @@
 package com.tazk.tazk.ui.main.dialogs
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.speech.RecognitionListener
+import android.speech.RecognizerIntent
+import android.speech.SpeechRecognizer
+import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.ImageButton
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatImageButton
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -36,6 +43,10 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
     private val model: MainViewModel by sharedViewModel()
     private val attachmentsAdapter = AttachmentsAdapter(this)
 
+    private lateinit var speechRecognizer : SpeechRecognizer
+    private val REQUEST_CODE = 1
+    private var descriptionSelected = false
+
 
 
     override fun onCreateView(
@@ -50,7 +61,10 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
 
         this.mBinding = binding
         this.mView = view
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(requireContext())
         setViewMetric()
+        setMic()
+        setDescriptionFocusListener()
 
         initializeSpnCategory()
         initializeRvAttachments()
@@ -237,6 +251,13 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
                 openReminderTimePicker()
             }
         }
+
+        model.micClickMutableHandler.observe(this) {
+            if (it) {
+                model.micClickMutableHandler.postValue(false)
+                goTextToSpeech()
+            }
+        }
     }
 
     private fun missingTitle() {
@@ -420,6 +441,99 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             tvReminderTime.visibility = View.GONE
             etReminderTime.visibility = View.GONE
             ibReminderTime.visibility = View.GONE
+        }
+    }
+
+    private fun goTextToSpeech() {
+        if(ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED){
+            checkPermission()
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        speechRecognizer.destroy()
+    }
+
+    private fun checkPermission() {
+        val list : Array<String> = arrayOf(android.Manifest.permission.RECORD_AUDIO)
+        ActivityCompat.requestPermissions(requireActivity(), list, REQUEST_CODE);
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+        if (requestCode == REQUEST_CODE && grantResults.isNotEmpty()){
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                Toast.makeText(requireContext(),"Permission Granted",Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun setMic() {
+        val speechRecognizerIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+        speechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+
+        speechRecognizer.setRecognitionListener(object : RecognitionListener {
+            override fun onReadyForSpeech(params: Bundle?) {
+            }
+
+            override fun onBeginningOfSpeech() {
+            }
+
+            override fun onRmsChanged(rmsdB: Float) {
+            }
+
+            override fun onBufferReceived(buffer: ByteArray?) {
+            }
+
+            override fun onEndOfSpeech() {
+            }
+
+            override fun onError(error: Int) {
+            }
+
+            override fun onResults(results: Bundle?) {
+                mBinding.ibMic.setImageResource(R.drawable.ic_mic)
+                val data: ArrayList<String>? = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
+                if (data != null) {
+                    if (!descriptionSelected) {
+                        mBinding.etTitle.setText(data[0])
+                    } else {
+                        mBinding.etDescription.setText(data[0])
+                    }
+                }
+            }
+
+            override fun onPartialResults(partialResults: Bundle?) {
+            }
+
+            override fun onEvent(eventType: Int, params: Bundle?) {
+            }
+        })
+
+        mBinding.ibMic.setOnTouchListener{ v, event ->
+            when (event?.action) {
+                MotionEvent.ACTION_UP -> {
+                    speechRecognizer.stopListening()
+                }
+                MotionEvent.ACTION_DOWN -> {
+                    mBinding.ibMic.setImageResource(R.drawable.ic_mic_listening)
+                    speechRecognizer.startListening(speechRecognizerIntent)
+                }
+            }
+            false
+        }
+    }
+
+    private fun setDescriptionFocusListener() {
+        mBinding.etDescription.setOnFocusChangeListener { v, hasFocus ->
+            descriptionSelected = hasFocus
         }
     }
 }

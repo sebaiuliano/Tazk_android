@@ -1,10 +1,8 @@
 package com.tazk.tazk.network.repository
 
 import com.tazk.tazk.entities.network.request.DeleteImageRequest
-import com.tazk.tazk.entities.network.request.ImageRequest
 import com.tazk.tazk.entities.network.request.SignInRequest
 import com.tazk.tazk.entities.network.response.BasicResponse
-import com.tazk.tazk.entities.network.response.ImageResponse
 import com.tazk.tazk.entities.network.response.ImageResponseWrapper
 import com.tazk.tazk.entities.network.response.TasksResponse
 import com.tazk.tazk.entities.task.Task
@@ -14,7 +12,6 @@ import com.tazk.tazk.repository.TaskRepository
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
-import org.json.JSONObject
 import retrofit2.Response
 import java.io.File
 import java.io.IOException
