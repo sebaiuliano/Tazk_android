@@ -31,7 +31,9 @@ class AttachmentsAdapter(private val listener: CustomClickListener) : RecyclerVi
     }
 
     fun deleteAttachment(position: Int){
-        attachmentList.removeAt(position)
-        notifyItemRemoved(position)
+        if (attachmentList.size > position) {
+            attachmentList.removeAt(position)
+            notifyItemRemoved(position)
+        }
     }
 }
