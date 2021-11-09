@@ -1,6 +1,6 @@
 package com.tazk.tazk.util.interceptors
 
-import com.tazk.tazk.util.services.WifiService
+import com.tazk.tazk.services.WifiService
 import okhttp3.*
 import java.io.IOException
 

@@ -20,6 +20,7 @@ import com.tazk.tazk.databinding.ActivityLoginBinding
 import com.tazk.tazk.ui.main.MainActivity
 import org.koin.android.viewmodel.ext.android.viewModel
 import timber.log.Timber
+import java.io.IOException
 import java.lang.RuntimeException
 
 
@@ -76,9 +77,8 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             } ?: run {
                 goSignIn()
             }
-        } catch (e: ApiException) {
-            Timber.e("signInResult:failed code= ${e.statusCode}")
-//            failedLogin()
+        } catch (e: IOException) {
+            Timber.e("signInResult:failed = ${e.message}")
             goMainActivity()
         } catch (e: RuntimeException) {
             Timber.e("signInResult:failed code= ${e.message}")

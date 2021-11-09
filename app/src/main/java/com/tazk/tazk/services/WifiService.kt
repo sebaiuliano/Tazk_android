@@ -1,4 +1,4 @@
-package com.tazk.tazk.util.services
+package com.tazk.tazk.services
 
 import android.content.Context
 import android.net.ConnectivityManager

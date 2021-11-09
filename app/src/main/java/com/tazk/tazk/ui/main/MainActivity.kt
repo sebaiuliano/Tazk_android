@@ -114,6 +114,20 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
                 saveTaskFailure()
             }
         }
+
+        model.syncTasksSuccessMutableHandler.observe(this) {
+            if (it) {
+                model.syncTasksSuccessMutableHandler.value = false
+                handleSyncTasksSuccess()
+            }
+        }
+
+        model.syncTasksFailureMutableHandler.observe(this) {
+            if (it) {
+                model.syncTasksFailureMutableHandler.value = false
+                handleSyncTasksFailure()
+            }
+        }
     }
 
     private fun initializeTasksRecyclerView() {
@@ -191,5 +205,14 @@ class MainActivity : AppCompatActivity(), CustomClickListener {
     private fun openFilterDialog() {
         val fragment = FilterDialogFragment()
         fragment.show(supportFragmentManager, "filter")
+    }
+
+    private fun handleSyncTasksSuccess() {
+        Toast.makeText(this, "Tareas locales sincronizadas correctamente", Toast.LENGTH_SHORT).show()
+        model.getTasks()
+    }
+
+    private fun handleSyncTasksFailure() {
+        Toast.makeText(this, "Ocurrió un error al sincronizar las tareas con la nube", Toast.LENGTH_SHORT).show()
     }
 }
