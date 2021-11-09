@@ -1,9 +1,15 @@
 package com.tazk.tazk.ui.login
 
+import android.animation.Animator
+import android.animation.AnimatorInflater
+import android.animation.AnimatorSet
+import android.animation.ObjectAnimator
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
+import androidx.core.animation.addListener
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -37,7 +43,7 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_login)
         binding.loginViewModel = model
         binding.lifecycleOwner = this
-
+        startAnimation()
         setObservers()
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestIdToken("966205408454-jjtc7ij257qpej8u5gr0igbuncfcfg88.apps.googleusercontent.com")
@@ -52,6 +58,31 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
                 goSignIn()
 //            }
         }
+    }
+
+    private fun startAnimation() {
+        val animatorSet = AnimatorSet()
+        val animAppName = AnimatorInflater.loadAnimator(this, R.animator.entrance_up)
+        animAppName.setTarget(binding.tvAppName)
+        val animSlogan = AnimatorInflater.loadAnimator(this, R.animator.fade_in)
+        animSlogan.setTarget(binding.tvSlogan)
+        animatorSet.playSequentially(animAppName, animSlogan)
+        animatorSet.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator?) {
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                binding.signInButton.visibility = View.VISIBLE
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+            }
+
+            override fun onAnimationRepeat(animation: Animator?) {
+            }
+
+        })
+        animatorSet.start()
     }
 
     private fun goSignIn(){
@@ -145,6 +176,4 @@ class LoginActivity : AppCompatActivity(), OnConnectionFailedListener {
             model.successfulGoogleLogin(account!!, token)
         })
     }
-
-
 }
