@@ -18,9 +18,9 @@
     <string name="select_image">Select image</string>
     <string name="take_photo">Take photo</string>
     <string-array name="list_categories">
-        <item>Tarea</item>
+        <item>Task</item>
         <item>Error</item>
-        <item>Otro</item>
+        <item>Other</item>
     </string-array>
     <string name="reminder">Reminder</string>
     <string name="reminder_date">Reminder date</string>
