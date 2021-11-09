@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.tazk.tazk.repository.ApiTazkRepository
 import kotlinx.coroutines.*
+import timber.log.Timber
+import java.lang.Exception
 
 class LoginViewModel(
     private val apiTazkRepository: ApiTazkRepository
@@ -19,14 +21,19 @@ class LoginViewModel(
     fun successfulGoogleLogin(account: GoogleSignInAccount, registrationToken: String) {
         uiScope.launch {
             account.idToken?.let { token ->
-                val response = withContext(Dispatchers.IO) {
-                    apiTazkRepository.signIn(token, registrationToken)
-                }
-                println("LOGIN REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
-                when {
-                    response.isSuccessful -> { signInSuccessMutableHandler.postValue(true) }
-                    response.code() == 600 -> { noInternetMutableHandler.postValue(true) }
-                    else -> { signInErrorMutableHandler.postValue(true) }
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        apiTazkRepository.signIn(token, registrationToken)
+                    }
+                    println("LOGIN REQUEST SUCCESS: ${response.isSuccessful} - ${response.body()}")
+                    when {
+                        response.isSuccessful -> { signInSuccessMutableHandler.postValue(true) }
+                        response.code() == 600 -> { noInternetMutableHandler.postValue(true) }
+                        else -> { signInErrorMutableHandler.postValue(true) }
+                    }
+                } catch(e: Exception) {
+                    Timber.e(e)
+                    signInErrorMutableHandler.postValue(true)
                 }
             }
         }

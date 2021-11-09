@@ -21,10 +21,14 @@ class CustomFirebaseMessagingService: FirebaseMessagingService() {
     override fun onNewToken(token: String) {
         super.onNewToken(token)
         println("NEW REGISTRATIONTOKEN: $token")
-        GlobalScope.launch {
-            withContext(Dispatchers.IO) {
-                apiTazkRepository.updateRegistrationToken(token)
+        try {
+            GlobalScope.launch {
+                withContext(Dispatchers.IO) {
+                    apiTazkRepository.updateRegistrationToken(token)
+                }
             }
+        } catch(e: Exception) {
+            Timber.e(e)
         }
     }
 

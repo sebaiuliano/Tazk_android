@@ -13,6 +13,7 @@ import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
+import timber.log.Timber
 import java.io.File
 import java.io.IOException
 
@@ -45,11 +46,22 @@ class ApiTazkRepositoryImpl(
     }
 
     override suspend fun updateTask(task: Task): Boolean {
-        return apiTazk.updateTask(idToken, task).isSuccessful
+        return try {
+            apiTazk.updateTask(idToken, task).isSuccessful
+        } catch(e: Exception) {
+            Timber.e(e)
+            false
+        }
     }
 
     override suspend fun deleteTask(id: String): Boolean {
-        return apiTazk.deleteTask(idToken, id).isSuccessful
+        return try {
+            apiTazk.deleteTask(idToken, id).isSuccessful
+        } catch(e: Exception) {
+            Timber.e(e)
+            false
+        }
+
     }
 
     override suspend fun getTasksByDate(

@@ -7,7 +7,7 @@ import com.tazk.tazk.entities.network.response.ImageResponse
 import com.tazk.tazk.entities.task.Task
 import com.tazk.tazk.repository.ApiTazkRepository
 import com.tazk.tazk.repository.TaskRepository
-import com.tazk.tazk.util.services.WifiService
+import com.tazk.tazk.services.WifiService
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.io.File
@@ -42,6 +42,10 @@ class MainViewModel(
     //getTasks handlers
     var getTasksMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
     var getTasksErrorMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
+
+    //sync tasks handler
+    var syncTasksSuccessMutableHandler = MutableLiveData<Boolean>()
+    var syncTasksFailureMutableHandler = MutableLiveData<Boolean>()
 
     //deleteTask handlers
     var deleteTaskMutableHandler: MutableLiveData<Boolean> = MutableLiveData()
@@ -136,6 +140,7 @@ class MainViewModel(
                     getTasksErrorMutableHandler.postValue(true)
                 }
             } catch(e: IOException) {
+                Timber.e(e)
                 getTasksErrorMutableHandler.postValue(true)
             }
         }
@@ -148,13 +153,21 @@ class MainViewModel(
             }
             if (WifiService.instance.isOnline()) {
                 for (task in tasks) {
-                    val response = withContext(Dispatchers.IO) {
-                        apiTazkRepository.createTask(task)
-                    }
-                    if (response) {
-                        withContext(Dispatchers.IO) {
-                            taskRepository.delete(task)
+                    try {
+                        val response = withContext(Dispatchers.IO) {
+                            apiTazkRepository.createTask(task)
                         }
+                        if (response) {
+                            withContext(Dispatchers.IO) {
+                                taskRepository.delete(task)
+                            }
+                            syncTasksSuccessMutableHandler.postValue(true)
+                        } else {
+                            syncTasksFailureMutableHandler.postValue(true)
+                        }
+                    } catch(e: Exception) {
+                        Timber.e(e)
+                        syncTasksFailureMutableHandler.postValue(true)
                     }
                 }
             }
@@ -180,14 +193,20 @@ class MainViewModel(
     fun attachImage() {
         file?.let {
             uiScope.launch {
-                val response = withContext(Dispatchers.IO) {
-                    apiTazkRepository.uploadImage(it)
-                }
-                println("UPLOAD IMAGE SUCCESS: ${response.isSuccessful} - ${response.body()}")
-                if (response.isSuccessful) {
-                    attachImageResponse = response.body()?.data
-                    onAttachSuccessMutableHandler.postValue(true)
-                } else {
+                try {
+                    val response = withContext(Dispatchers.IO) {
+                        apiTazkRepository.uploadImage(it)
+                    }
+                    println("UPLOAD IMAGE SUCCESS: ${response.isSuccessful} - ${response.body()}")
+                    if (response.isSuccessful) {
+                        attachImageResponse = response.body()?.data
+                        onAttachSuccessMutableHandler.postValue(true)
+                    } else {
+                        attachImageResponse = null
+                        onAttachFailureMutableHandler.postValue(true)
+                    }
+                } catch(e: Exception) {
+                    Timber.e(e)
                     attachImageResponse = null
                     onAttachFailureMutableHandler.postValue(true)
                 }
@@ -197,31 +216,35 @@ class MainViewModel(
 
     fun deleteAttachment(attachment: ImageResponse) {
         uiScope.launch {
-            val responseAttachment = withContext(Dispatchers.IO) {
-                apiTazkRepository.deleteImage(DeleteImageRequest(attachment.publicId))
-            }
-            println("DELETE IMAGE SUCCESS: ${responseAttachment.isSuccessful} - ${responseAttachment.body()}")
-            if (responseAttachment.isSuccessful) {
-                selectedTask?.let {
-                    val responseTask = withContext(Dispatchers.IO) {
-                        val auxList = it.image.toMutableList()
-                        auxList.remove(attachment)
-                        it.image = auxList
-                        attachments = auxList
-                        val response = apiTazkRepository.updateTask(it)
-                        response
-                    }
-                    if (responseTask) {
-                        onDeleteAttachmentSuccessMutableHandler.postValue(true)
-                    } else {
-                        onDeleteAttachmentFailureMutableHandler.postValue(true)
-                    }
+            try {
+                val responseAttachment = withContext(Dispatchers.IO) {
+                    apiTazkRepository.deleteImage(DeleteImageRequest(attachment.publicId))
                 }
-            } else {
+                println("DELETE IMAGE SUCCESS: ${responseAttachment.isSuccessful} - ${responseAttachment.body()}")
+                if (responseAttachment.isSuccessful) {
+                    selectedTask?.let {
+                        val responseTask = withContext(Dispatchers.IO) {
+                            val auxList = it.image.toMutableList()
+                            auxList.remove(attachment)
+                            it.image = auxList
+                            attachments = auxList
+                            val response = apiTazkRepository.updateTask(it)
+                            response
+                        }
+                        if (responseTask) {
+                            onDeleteAttachmentSuccessMutableHandler.postValue(true)
+                        } else {
+                            onDeleteAttachmentFailureMutableHandler.postValue(true)
+                        }
+                    }
+                } else {
+                    onDeleteAttachmentFailureMutableHandler.postValue(true)
+                }
+            } catch (e: Exception) {
+                Timber.e(e)
                 onDeleteAttachmentFailureMutableHandler.postValue(true)
             }
         }
-
     }
 
     fun onDateClick() {
