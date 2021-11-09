@@ -230,24 +230,11 @@
             android:visibility="gone"
             />
 
-        <Button
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:id="@+id/btn_save"
-            app:layout_constraintTop_toBottomOf="@id/et_reminder_time"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="@string/save"
-            android:layout_margin="20dp"
-            android:onClick="@{() -> mainViewModel.onSaveTask()}"
-            android:textColor="@color/white"
-            />
-
         <ImageButton
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:id="@+id/ib_mic"
-            app:layout_constraintTop_toBottomOf="@id/btn_save"
+            app:layout_constraintTop_toBottomOf="@id/et_reminder_time"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -256,6 +243,19 @@
             android:background="@color/main_background"
             android:elevation="5dp"
             android:onClick="@{() -> mainViewModel.onMicClick()}"
+            />
+
+        <Button
+            android:layout_width="300dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/btn_save"
+            app:layout_constraintTop_toBottomOf="@id/ib_mic"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@string/save"
+            android:layout_margin="20dp"
+            android:onClick="@{() -> mainViewModel.onSaveTask()}"
+            android:textColor="@color/white"
             />
 
         <androidx.constraintlayout.widget.Guideline
