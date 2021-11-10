@@ -236,6 +236,9 @@ class MainViewModel(
                         } else {
                             onDeleteAttachmentFailureMutableHandler.postValue(true)
                         }
+                    } ?: run {
+                        attachments.remove(attachment)
+                        onDeleteAttachmentSuccessMutableHandler.postValue(true)
                     }
                 } else {
                     onDeleteAttachmentFailureMutableHandler.postValue(true)
