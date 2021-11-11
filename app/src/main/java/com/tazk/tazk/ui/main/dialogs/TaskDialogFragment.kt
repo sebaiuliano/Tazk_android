@@ -368,7 +368,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             dateStart = Tools.dateWithOffset(dateStart)
             val gc = GregorianCalendar()
             gc.timeInMillis = dateStart.time
-            model.reminderDate = gc.atStartOfDay()
+            model.reminderDate = gc
             mBinding.etReminderDate.setText(Tools.gregorianCalendarToString(model.reminderDate, "dd/MM/yyyy"))
             datePicker.dismiss()
         }
