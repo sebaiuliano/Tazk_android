@@ -13,9 +13,7 @@ import android.speech.SpeechRecognizer
 import android.view.*
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.ImageButton
 import android.widget.Toast
-import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -159,12 +157,6 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         model.saveTaskClickMutableHandler.observe(this) {
             if (it) {
                 model.saveTaskClickMutableHandler.value = false
-//                val locale = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-//                    resources.configuration.locales[0]
-//                } else {
-//                    resources.configuration.locale
-//                }
-//                val gc = GregorianCalendar.getInstance(locale) as GregorianCalendar
                 val task = Task(
                     model.selectedTask?.id,
                     mBinding.etTitle.text.toString(),
@@ -359,7 +351,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
     private fun openReminderDatePicker() {
         val datePicker = MaterialDatePicker.Builder.datePicker()
             .setTitleText(resources.getString(R.string.select_date))
-            .setSelection(Calendar.getInstance().timeInMillis)
+            .setSelection(GregorianCalendar().atStartOfDay().timeInMillis)
             .build()
 
         datePicker.addOnPositiveButtonClickListener {
@@ -371,6 +363,8 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             model.reminderDate = gc
             mBinding.etReminderDate.setText(Tools.gregorianCalendarToString(model.reminderDate, "dd/MM/yyyy"))
             datePicker.dismiss()
+            mBinding.etReminderTime.setText("")
+            mBinding.btnSave.isEnabled = false
         }
 
         datePicker.addOnNegativeButtonClickListener {
@@ -398,10 +392,12 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         }
 
         timePicker.addOnPositiveButtonClickListener {
+            model.reminderDate = model.reminderDate.atStartOfDay()
             model.reminderDate.add(GregorianCalendar.HOUR, timePicker.hour)
             model.reminderDate.add(GregorianCalendar.MINUTE, timePicker.minute)
             mBinding.etReminderTime.setText("${timePicker.hour.toString().padStart(2, '0')}:${timePicker.minute.toString().padStart(2, '0')}")
             timePicker.dismiss()
+            checkEnableSaveButton()
         }
 
         timePicker.show(childFragmentManager, "reminder_time_picker")
@@ -431,6 +427,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             tvReminderTime.visibility = View.VISIBLE
             etReminderTime.visibility = View.VISIBLE
             ibReminderTime.visibility = View.VISIBLE
+            checkEnableSaveButton()
         }
     }
 
@@ -443,6 +440,20 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             tvReminderTime.visibility = View.GONE
             etReminderTime.visibility = View.GONE
             ibReminderTime.visibility = View.GONE
+            checkEnableSaveButton()
+        }
+    }
+
+    private fun checkEnableSaveButton() {
+        mBinding.btnSave.isEnabled = if (model.hasReminder) {
+            if (model.reminderDate.timeInMillis >= GregorianCalendar().timeInMillis ) {
+                mBinding.etReminderDate.text.isNotEmpty() && mBinding.etReminderTime.text.isNotEmpty()
+            } else {
+                Toast.makeText(requireContext(), "Se debe ingresar una fecha y hora de recordatorio posterior a la actual", Toast.LENGTH_SHORT).show()
+                false
+            }
+        } else {
+            true
         }
     }
 
@@ -470,8 +481,9 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == REQUEST_CODE && grantResults.isNotEmpty()){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED)
+            if(grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(requireContext(),"Permission Granted",Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -501,7 +513,6 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             }
 
             override fun onResults(results: Bundle?) {
-                mBinding.ibMic.setImageResource(R.drawable.ic_mic)
                 val data: ArrayList<String>? = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 if (data != null) {
                     if (!descriptionSelected) {
@@ -523,6 +534,7 @@ class TaskDialogFragment: DialogFragment(), CustomClickListener {
             when (event?.action) {
                 MotionEvent.ACTION_UP -> {
                     speechRecognizer.stopListening()
+                    mBinding.ibMic.setImageResource(R.drawable.ic_mic)
                 }
                 MotionEvent.ACTION_DOWN -> {
                     mBinding.ibMic.setImageResource(R.drawable.ic_mic_listening)
