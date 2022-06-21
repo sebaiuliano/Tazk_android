@@ -14,10 +14,6 @@ class TaskViewHolder(
     fun bind(task: Task) {
         setTask(task)
         itemView.setOnClickListener{ listener.onItemClick(task, adapterPosition) }
-//        itemView.setOnLongClickListener {
-//            listener.onItemLongClick(task, adapterPosition)
-//            true
-//        }
     }
 
     private fun setTask(task: Task){

@@ -28,7 +28,6 @@ class TasksAdapter(private val listener: CustomClickListener) : RecyclerView.Ada
 
     fun setTasks(list: List<Task>){
         taskList = list.toMutableList()
-//        notifyItemRangeInserted(0, taskList.size)
         notifyDataSetChanged()
     }
 

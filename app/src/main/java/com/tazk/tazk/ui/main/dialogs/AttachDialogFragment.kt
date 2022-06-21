@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.runtime.Composable
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -164,4 +165,7 @@ class AttachDialogFragment : BottomSheetDialogFragment() {
             .setNegativeButton("Cancel",null)
             .show()
     }
+
+
+
 }
